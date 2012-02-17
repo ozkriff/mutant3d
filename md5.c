@@ -1,0 +1,453 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <GL/glfw.h>
+#include "bool.h"
+#include "misc.h"
+#include "math.h"
+#include "md5.h"
+#include "gl.h"
+
+Vec3 joint_transform (Joint *j, Vec3 v){
+  return(vec3d_plus(quat_rot(j->orient, v), j->pos));
+}
+
+void anim_debug_print (Anim *a){
+  int i;
+  for(i = 0; i < a->num_joints; i++){
+    Hierarchy_item *h = a->hierarchy + i;
+    printf("hierarchy %d %d %d\n",
+      h->parent, h->flags, h->start_index);
+  }
+  for(i = 0; i < a->num_joints; i++){
+    Base_frame_joint *j = a->base_frame + i;
+    printf("base_frame_joint (%f %f %f) (%f %f %f %f)\n", 
+      j->pos.x, j->pos.y, j->pos.z,
+      j->orient.x, j->orient.y, j->orient.z, j->orient.w);
+  }
+  for(i = 0; i < a->num_frames; i++){
+    int j;
+    printf("frame:\n");
+    for(j = 0; j < a->num_animated_components; j++){
+      printf("%f ", a->frames[i][j]);
+      if(j % 6 == 0)
+        printf("\n");
+    }
+    printf("\n");
+  }
+  for(i = 0; i < a->num_joints; i++){
+    Joint *j = a->joints + i;
+    printf("joint %i (%f %f %f) (%f %f %f %f)\n", 
+      j->parent_index,
+      j->pos.x, j->pos.y, j->pos.z,
+      j->orient.x, j->orient.y, j->orient.z, j->orient.w);
+  }
+}
+
+void mesh_debug_print (Mesh *m){
+  int i;
+  for(i=0; i<m->num_vertices; i++){
+    Vec3 *v = m->points + i;
+    printf("  point: %d %f %f %f\n",
+        i, v->x, v->y, v->z);
+  }
+  for(i=0; i<m->num_vertices; i++){
+    Vertex *v = m->vertices + i;
+    printf("  vert: %d (%f %f) %d %d\n",
+        i,
+        v->tex.x,
+        v->tex.y,
+        v->weight_index,
+        v->weight_count);
+  }
+  for(i=0; i<m->num_tris; i++){
+    Triangle *t = m->tris + i;
+    printf("  tri %d  %d %d %d\n",
+        i,
+        t->index[0],
+        t->index[1],
+        t->index[2]);
+  }
+  for(i=0; i<m->num_weights; i++){
+    Weight *w = m->weights + i;
+    printf("  weight %d %d %f (%f %f %f)\n",
+        i,
+        w->joint_index,
+        w->weight,
+        w->pos.x,
+        w->pos.y,
+        w->pos.z);
+  }
+}
+
+void model_debug_print (Model *m){
+  int i;
+  for(i=0; i<m->num_joints; i++){
+    Joint *j = m->joints + i;
+    printf("joint: %d %d  (%f %f %f) (%f %f %f %f)\n",
+        i,
+        j->parent_index,
+        j->pos.x,
+        j->pos.y,
+        j->pos.z,
+        j->orient.x,
+        j->orient.y,
+        j->orient.z,
+        j->orient.w);
+  }
+  for(i=0; i<m->num_meshes; i++){
+    Mesh *mesh = m->meshes + i;
+    printf("Mesh %d:\n", i);
+    mesh_debug_print(mesh);
+  }
+}
+
+/*Compute real points from bones data.*/
+void mesh_calc_points (Mesh *m, Joint *joints){
+  int i;
+  for(i = 0; i < m->num_vertices; i++){ 
+    Vertex *v = m->vertices + i; /*current vertex*/
+    Vec3 p = {0, 0, 0}; 
+    int k;
+    for(k = 0; k < v->weight_count; k++){ 
+      Weight *w = m->weights + (v->weight_index + k);
+      Joint  *j  = joints + w->joint_index;
+      /*Transform weight.pos by bone with weight.*/
+      Vec3 p2 = joint_transform(j, w->pos);
+      p.x += p2.x * w->weight;
+      p.y += p2.y * w->weight;
+      p.z += p2.z * w->weight;
+    } 
+    m->points[i] = p;
+  } 
+}
+
+void model_compute (Model *m, Joint *joints){
+  int i;
+  for(i = 0; i < m->num_meshes; i++ )
+    mesh_calc_points(m->meshes + i, joints);
+}
+
+void read_mesh (FILE *f, Mesh *m){
+  char s[200];
+  while(fgets(s, 200, f) != NULL){
+    if(s[0] == '}'){
+      int i;
+      m->max_joints_per_vert = 0;
+      /*Calculate max joints per vertex*/
+      for(i = 0; i < m->num_vertices; i++)
+        if(m->vertices[i].weight_count > m->max_joints_per_vert)
+          m->max_joints_per_vert = m->vertices[i].weight_count;
+      return;
+    }else if(strcmp_sp(s+1, "shader %s\n")){
+      char name[40];
+      sscanf(s+1, "shader \"%[^\"]s\"\n", name);
+      m->shader = my_strdup(name);
+      {
+        /*TODO: check if this texture is already loaded*/
+        char s[40];
+        sprintf(s, "%s.tga", name);
+        m->texture = load_texture(s);
+        if(m->texture == -1){
+          printf("No texture '%s'\n", s);
+          exit(1);
+        }
+      }
+    }else if(strcmp_sp(s+1, "numverts %d\n")){
+      sscanf(s+1, "numverts %d\n", &m->num_vertices);
+      m->vertices = calloc(m->num_vertices, sizeof(Vertex));
+      m->points = calloc(m->num_vertices, sizeof(Vertex));
+    }else if(strcmp_sp(s+1, "numtris %d\n")){
+      sscanf(s+1, "numtris %d\n", &m->num_tris);
+      m->tris = calloc(m->num_tris, sizeof(Triangle));
+    }else if(strcmp_sp(s+1, "numweights %d\n")){
+      sscanf(s+1, "numweights %d\n", &m->num_weights);
+      m->weights = calloc(m->num_weights, sizeof(Weight));
+    }else if(strcmp_sp(s+1, "vert ")){
+      Vertex *v;
+      int index;
+      Vec2 tex;
+      int weightIndex;
+      int weightCount;
+      sscanf(s+1, "vert %d ( %f %f ) %d %d\n",
+          &index,
+          &tex.x,
+          &tex.y,
+          &weightIndex,
+          &weightCount);
+      v = m->vertices + index;
+      v->tex.x = tex.x;
+      v->tex.y = tex.y;
+      v->weight_index = weightIndex;
+      v->weight_count = weightCount;
+    }else if(strcmp_sp(s+1, "tri ")){
+      Triangle *t;
+      int index, i0, i1, i2;
+      sscanf(s+1, "tri %d %d %d %d\n",
+          &index, &i0, &i1, &i2);
+      t = m->tris + index;
+      t->index[0] = i0;
+      t->index[1] = i1;
+      t->index[2] = i2;
+    }else if(strcmp_sp(s+1, "weight ")){
+      Weight *w;
+      int index; 
+      int joint;
+      float bias;
+      Vec3 pos;
+      sscanf(s+1, "weight %d %d %f ( %f %f %f )\n",
+          &index, &joint, &bias, &pos.x, &pos.y, &pos.z);
+      w = m->weights + index;
+      w->joint_index = joint;
+      w->weight = bias;
+      w->pos.x = pos.x;
+      w->pos.y = pos.y;
+      w->pos.z = pos.z;
+    }
+  }
+}
+
+void read_joints (FILE *f, Joint *joints){
+  char s[200];
+  int no = 0;
+  while(fgets(s, 200, f) != NULL){
+    if(s[0] == '}'){
+      /*puts("}..");*/
+      return;
+    }else{
+      /*puts("\tjoint...");*/
+      Joint *j;
+      Vec3 pos;
+      int index;
+      Quat q;
+      char name[40];
+      sscanf(s+1, "%s %d ( %f %f %f ) ( %f %f %f )\n",
+          name,
+          &index,
+          &pos.x, &pos.y, &pos.z,
+          &(q.x), &(q.y), &(q.z));
+      renormalize(&q);
+      j = joints + no;
+      j->name        = my_strdup(name);
+      j->parent_index = index;
+      j->parent      = (index >= 0) ? (joints+index) : NULL;
+      j->pos.x       = pos.x;
+      j->pos.y       = pos.y;
+      j->pos.z       = pos.z;
+      j->orient.x    = q.x;
+      j->orient.y    = q.y;
+      j->orient.z    = q.z;
+      j->orient.w    = q.w;
+      no++;
+    }
+  }
+}
+
+void load_model (Model *m, char *filename){
+  FILE *f = fopen(filename, "r");
+  char s[200];
+  int mesh_n = 0;
+  while(fgets(s, 200, f) != NULL){
+    if(strcmp_sp(s, "numJoints %d\n")){
+      /*puts("numjoints");*/
+      sscanf(s, "numJoints %d\n", &m->num_joints);
+      m->joints = calloc(m->num_joints, sizeof(Joint));
+    }else if(strcmp_sp(s, "numMeshes %d\n")){
+      /*puts("nummesh");*/
+      sscanf(s, "numMeshes %d\n", &m->num_meshes);
+      m->meshes = calloc(m->num_meshes, sizeof(Mesh));
+    }else if(strcmp_sp(s, "joints {\n")){
+      /*puts("joints {");*/
+      read_joints(f, m->joints);
+    }else if(strcmp_sp(s, "mesh {\n")){
+      /*puts("mesh {");*/
+      read_mesh(f, m->meshes + mesh_n);
+      mesh_n++;
+    }else{
+      /*puts("...");*/
+    }
+  }
+  fclose(f);
+}
+
+void load_hierarchy (FILE *f, Anim *a){
+  char s[200];
+  int i = 0;
+  while(fgets(s, 200, f) != NULL){
+    if(s[0] == '}'){
+      return;
+    }else{
+      Hierarchy_item *h;
+      char name[40];
+      int parent;
+      int flags;
+      int startIndex;
+      /*int n = sscanf(s+1, "\"%[^\"]s\"\t%d %d %d\n",*/
+      int n = sscanf(s+1, "%s\t%d %d %d\n",
+          name, &parent, &flags, &startIndex);
+      if(n != 4){
+        printf("load_hier! %d\n", n);
+        exit(1);
+      }
+      h = a->hierarchy + i;
+      h->name = my_strdup(name);
+      h->parent = parent;
+      h->flags = flags;
+      h->start_index = startIndex;
+    }
+    i++;
+  }
+}
+
+void load_base_frame (FILE *f, Anim *a){
+  char s[200];
+  int i = 0;
+  while(fgets(s, 200, f) != NULL){
+    Base_frame_joint *b = a->base_frame + i;
+    if(s[0] == '}'){
+      return;
+    }else{
+      Vec3 pos, rot;
+      sscanf(s+1, "( %f %f %f ) ( %f %f %f )\n",
+          &pos.x, &pos.y, &pos.z,
+          &rot.x, &rot.y, &rot.z);
+      b->pos = pos;
+      b->orient.x = rot.x;
+      b->orient.y = rot.y;
+      b->orient.z = rot.z;
+      b->orient.w = 0;
+    }
+    renormalize(&b->orient);
+    i++;
+  }
+}
+
+void load_frame (FILE *f, Anim *a, int n){
+  char s[200];
+  int i = 0;
+  a->frames[n] = calloc(a->num_animated_components, sizeof(float));
+  while(fgets(s, 200, f) != NULL){
+    if(s[0] == '}'){
+      return;
+    }else{
+      /*Vec3 pos, rot;*/
+      /*TODO*/
+      sscanf(s+1, "%f %f %f %f %f %f\n",
+          &a->frames[n][i+0],
+          &a->frames[n][i+1],
+          &a->frames[n][i+2],
+          &a->frames[n][i+3],
+          &a->frames[n][i+4],
+          &a->frames[n][i+5]);
+      i += 6;
+    }
+  }
+}
+
+void reset_joints (Anim *a){
+ int i;
+ for (i = 0; i < a->num_joints; i++ ) {
+  Joint *j = a->joints + i;
+  j->name = a->hierarchy[i].name; /* ? */
+  j->parent_index = a->hierarchy[i].parent;
+  if(j->parent_index == -1)
+    j->parent = NULL;
+  else
+    j->parent = a->joints + j->parent_index;
+  j->pos = a->base_frame[i].pos;
+  j->orient = a->base_frame[i].orient;
+ }
+}
+
+void build_joints (Anim *a){
+  int i;
+  for(i = 0; i < a->num_joints; i++ ){
+    Joint *j = a->joints + i;
+    Joint *p = j->parent;
+    if(p != NULL){
+      j->pos = vec3d_plus(p->pos, quat_rot(p->orient, j->pos));
+      j->orient = quat_mul(p->orient, j->orient);
+    }
+  }
+}
+
+void load_anim (char *filename, Anim *a){
+  FILE *f = fopen(filename, "r");
+  char s[200];
+  while(fgets(s, 200, f) != NULL){
+    if(strcmp_sp(s, "numFrames %d\n")){
+      sscanf(s, "numFrames %d\n", &a->num_frames);
+      a->frames = calloc(a->num_frames, sizeof(float*));
+    }else if(strcmp_sp(s, "numJoints %d\n")){
+      sscanf(s, "numJoints %d\n", &a->num_joints);
+      a->hierarchy = calloc(a->num_joints, sizeof(Hierarchy_item));
+      a->base_frame = calloc(a->num_joints, sizeof(Base_frame_joint));
+    }else if(strcmp_sp(s, "frameRate %d\n")){
+      /*...*/
+    }else if(strcmp_sp(s, "numAnimatedComponents %d\n")){
+      sscanf(s, "numAnimatedComponents %d\n",
+          &a->num_animated_components);
+    }else if(strcmp_sp(s, "hierarchy {\n")){
+      load_hierarchy(f, a);
+    }else if(strcmp_sp(s, "bounds {\n")){
+      /*loadBounds(f, a);*/
+    }else if(strcmp_sp(s, "baseframe {\n")){
+      load_base_frame(f, a);
+    }else if(strcmp_sp(s, "frame %d {\n")){
+      int n;
+      sscanf(s, "frame %d{\n", &n);
+      load_frame(f, a, n);
+    }
+  }
+  fclose(f);
+  a->joints = calloc(a->num_joints, sizeof(Joint));
+  reset_joints(a);
+  build_joints(a);
+}
+
+void mesh_draw (Mesh *m){
+  int i, k;
+  glBindTexture(GL_TEXTURE_2D, m->texture);
+  glBegin(GL_TRIANGLES);
+  for(i = 0; i < m->num_tris; i++){
+    for(k = 0; k < 3; k++){
+      int index = m->tris[i].index[k];
+      Vec2 tex = m->vertices[index].tex;
+      Vec3 pos = m->points[index];
+      glTexCoord2f(tex.x, tex.y);
+      glVertex3f(pos.x, pos.y, pos.z);
+    }
+  }
+  glEnd();
+}
+
+void model_draw (Model *m){
+  int i;
+  for(i = 0; i < m->num_meshes; i++)
+    mesh_draw(m->meshes + i);
+}
+
+void set_frame (Model *m, Anim *a, int n){
+  int i;
+  if(n < 0)
+    n = a->num_frames - 1;
+  if(n >= a->num_frames)
+    n = 0;
+  a->frame = n;
+  reset_joints(a);
+  for(i = 0; i < a->num_joints; i++){
+    int flags = a->hierarchy[i].flags;
+    int pos   = a->hierarchy[i].start_index;
+    Joint *j = a->joints + i;
+    if(flags &  1) j->pos.x = a->frames[n][pos++];
+    if(flags &  2) j->pos.y = a->frames[n][pos++];
+    if(flags &  4) j->pos.z = a->frames[n][pos++];
+    if(flags &  8) j->orient.x = a->frames[n][pos++];
+    if(flags & 16) j->orient.y = a->frames[n][pos++];
+    if(flags & 32) j->orient.z = a->frames[n][pos++];
+    renormalize(&j->orient);
+  }
+  build_joints(a);
+  model_compute(m, a->joints);
+}
