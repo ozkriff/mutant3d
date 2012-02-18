@@ -13,8 +13,8 @@ float rotate_x = 0;
 float rotate_y = 0;
 float rotate_z = 0;
 const float rotations_per_tick = 0.2f;
-Model m;
-Anim anim;
+Md5_model m;
+Md5_anim anim;
 
 void shut_down (int return_code){
   glfwTerminate();
@@ -28,8 +28,8 @@ void draw(void){
   glRotatef(rotate_y, 1, 0, 0);
   glRotatef(rotate_z, 0, 0, 1);
   glTranslatef(0, 0, -30);
-  set_frame(&m, &anim, anim.frame + 1);
-  model_draw(&m);
+  md5_set_frame(&m, &anim, anim.frame + 1);
+  md5_model_draw(&m);
 #if 0
   int i;
   for(i = 0; i < 0; i++){
@@ -101,17 +101,17 @@ init (void) {
 
 int main (void){
   init();
-  load_model(&m, "data/guard/bob.md5mesh");
-  model_compute(&m, m.joints);
+  md5_load_model(&m, "data/guard/bob.md5mesh");
+  md5_model_compute(&m, m.joints);
 #if 1
-  model_debug_print(&m);
+  md5_model_debug_print(&m);
 #endif
-  load_anim("data/guard/bob.md5anim", &anim);
-  model_compute(&m, anim.joints);
+  md5_load_anim("data/guard/bob.md5anim", &anim);
+  md5_model_compute(&m, anim.joints);
 #if 1
-  anim_debug_print(&anim);
+  md5_anim_debug_print(&anim);
 #endif
-  set_frame(&m, &anim, 0);
+  md5_set_frame(&m, &anim, 0);
   main_loop();
   shut_down(0);
   return(0);

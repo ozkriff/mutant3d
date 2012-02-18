@@ -9,19 +9,19 @@
 #include "md5.h"
 #include "gl.h"
 
-Vec3 joint_transform (Joint *j, Vec3 v){
+Vec3 md5_joint_transform (Md5_joint *j, Vec3 v){
   return(vec3d_plus(quat_rot(j->orient, v), j->pos));
 }
 
-void anim_debug_print (Anim *a){
+void md5_anim_debug_print (Md5_anim *a){
   int i;
   for(i = 0; i < a->num_joints; i++){
-    Hierarchy_item *h = a->hierarchy + i;
+    Md5_hierarchy_item *h = a->hierarchy + i;
     printf("hierarchy %d %d %d\n",
       h->parent, h->flags, h->start_index);
   }
   for(i = 0; i < a->num_joints; i++){
-    Base_frame_joint *j = a->base_frame + i;
+    Md5_base_frame_joint *j = a->base_frame + i;
     printf("base_frame_joint (%f %f %f) (%f %f %f %f)\n", 
       j->pos.x, j->pos.y, j->pos.z,
       j->orient.x, j->orient.y, j->orient.z, j->orient.w);
@@ -37,7 +37,7 @@ void anim_debug_print (Anim *a){
     printf("\n");
   }
   for(i = 0; i < a->num_joints; i++){
-    Joint *j = a->joints + i;
+    Md5_joint *j = a->joints + i;
     printf("joint %i (%f %f %f) (%f %f %f %f)\n", 
       j->parent_index,
       j->pos.x, j->pos.y, j->pos.z,
@@ -45,7 +45,7 @@ void anim_debug_print (Anim *a){
   }
 }
 
-void mesh_debug_print (Mesh *m){
+void md5_mesh_debug_print (Md5_mesh *m){
   int i;
   for(i=0; i<m->num_vertices; i++){
     Vec3 *v = m->points + i;
@@ -53,7 +53,7 @@ void mesh_debug_print (Mesh *m){
         i, v->x, v->y, v->z);
   }
   for(i=0; i<m->num_vertices; i++){
-    Vertex *v = m->vertices + i;
+    Md5_vertex *v = m->vertices + i;
     printf("  vert: %d (%f %f) %d %d\n",
         i,
         v->tex.x,
@@ -62,7 +62,7 @@ void mesh_debug_print (Mesh *m){
         v->weight_count);
   }
   for(i=0; i<m->num_tris; i++){
-    Triangle *t = m->tris + i;
+    Md5_triangle *t = m->tris + i;
     printf("  tri %d  %d %d %d\n",
         i,
         t->index[0],
@@ -70,7 +70,7 @@ void mesh_debug_print (Mesh *m){
         t->index[2]);
   }
   for(i=0; i<m->num_weights; i++){
-    Weight *w = m->weights + i;
+    Md5_weight *w = m->weights + i;
     printf("  weight %d %d %f (%f %f %f)\n",
         i,
         w->joint_index,
@@ -81,10 +81,10 @@ void mesh_debug_print (Mesh *m){
   }
 }
 
-void model_debug_print (Model *m){
+void md5_model_debug_print (Md5_model *m){
   int i;
   for(i=0; i<m->num_joints; i++){
-    Joint *j = m->joints + i;
+    Md5_joint *j = m->joints + i;
     printf("joint: %d %d  (%f %f %f) (%f %f %f %f)\n",
         i,
         j->parent_index,
@@ -97,24 +97,24 @@ void model_debug_print (Model *m){
         j->orient.w);
   }
   for(i=0; i<m->num_meshes; i++){
-    Mesh *mesh = m->meshes + i;
-    printf("Mesh %d:\n", i);
-    mesh_debug_print(mesh);
+    Md5_mesh *mesh = m->meshes + i;
+    printf("Md5_mesh %d:\n", i);
+    md5_mesh_debug_print(mesh);
   }
 }
 
 /*Compute real points from bones data.*/
-void mesh_calc_points (Mesh *m, Joint *joints){
+void md5_mesh_calc_points (Md5_mesh *m, Md5_joint *joints){
   int i;
   for(i = 0; i < m->num_vertices; i++){ 
-    Vertex *v = m->vertices + i; /*current vertex*/
+    Md5_vertex *v = m->vertices + i; /*current vertex*/
     Vec3 p = {0, 0, 0}; 
     int k;
     for(k = 0; k < v->weight_count; k++){ 
-      Weight *w = m->weights + (v->weight_index + k);
-      Joint  *j  = joints + w->joint_index;
+      Md5_weight *w = m->weights + (v->weight_index + k);
+      Md5_joint  *j  = joints + w->joint_index;
       /*Transform weight.pos by bone with weight.*/
-      Vec3 p2 = joint_transform(j, w->pos);
+      Vec3 p2 = md5_joint_transform(j, w->pos);
       p.x += p2.x * w->weight;
       p.y += p2.y * w->weight;
       p.z += p2.z * w->weight;
@@ -123,13 +123,13 @@ void mesh_calc_points (Mesh *m, Joint *joints){
   } 
 }
 
-void model_compute (Model *m, Joint *joints){
+void md5_model_compute (Md5_model *m, Md5_joint *joints){
   int i;
   for(i = 0; i < m->num_meshes; i++ )
-    mesh_calc_points(m->meshes + i, joints);
+    md5_mesh_calc_points(m->meshes + i, joints);
 }
 
-void read_mesh (FILE *f, Mesh *m){
+void md5_read_mesh (FILE *f, Md5_mesh *m){
   char s[200];
   while(fgets(s, 200, f) != NULL){
     if(s[0] == '}'){
@@ -156,16 +156,16 @@ void read_mesh (FILE *f, Mesh *m){
       }
     }else if(strcmp_sp(s+1, "numverts %d\n")){
       sscanf(s+1, "numverts %d\n", &m->num_vertices);
-      m->vertices = calloc(m->num_vertices, sizeof(Vertex));
-      m->points = calloc(m->num_vertices, sizeof(Vertex));
+      m->vertices = calloc(m->num_vertices, sizeof(Md5_vertex));
+      m->points = calloc(m->num_vertices, sizeof(Md5_vertex));
     }else if(strcmp_sp(s+1, "numtris %d\n")){
       sscanf(s+1, "numtris %d\n", &m->num_tris);
-      m->tris = calloc(m->num_tris, sizeof(Triangle));
+      m->tris = calloc(m->num_tris, sizeof(Md5_triangle));
     }else if(strcmp_sp(s+1, "numweights %d\n")){
       sscanf(s+1, "numweights %d\n", &m->num_weights);
-      m->weights = calloc(m->num_weights, sizeof(Weight));
+      m->weights = calloc(m->num_weights, sizeof(Md5_weight));
     }else if(strcmp_sp(s+1, "vert ")){
-      Vertex *v;
+      Md5_vertex *v;
       int index;
       Vec2 tex;
       int weightIndex;
@@ -182,7 +182,7 @@ void read_mesh (FILE *f, Mesh *m){
       v->weight_index = weightIndex;
       v->weight_count = weightCount;
     }else if(strcmp_sp(s+1, "tri ")){
-      Triangle *t;
+      Md5_triangle *t;
       int index, i0, i1, i2;
       sscanf(s+1, "tri %d %d %d %d\n",
           &index, &i0, &i1, &i2);
@@ -191,7 +191,7 @@ void read_mesh (FILE *f, Mesh *m){
       t->index[1] = i1;
       t->index[2] = i2;
     }else if(strcmp_sp(s+1, "weight ")){
-      Weight *w;
+      Md5_weight *w;
       int index; 
       int joint;
       float bias;
@@ -208,7 +208,7 @@ void read_mesh (FILE *f, Mesh *m){
   }
 }
 
-void read_joints (FILE *f, Joint *joints){
+void md5_read_joints (FILE *f, Md5_joint *joints){
   char s[200];
   int no = 0;
   while(fgets(s, 200, f) != NULL){
@@ -217,7 +217,7 @@ void read_joints (FILE *f, Joint *joints){
       return;
     }else{
       /*puts("\tjoint...");*/
-      Joint *j;
+      Md5_joint *j;
       Vec3 pos;
       int index;
       Quat q;
@@ -244,7 +244,7 @@ void read_joints (FILE *f, Joint *joints){
   }
 }
 
-void load_model (Model *m, char *filename){
+void md5_load_model (Md5_model *m, char *filename){
   FILE *f = fopen(filename, "r");
   char s[200];
   int mesh_n = 0;
@@ -252,17 +252,17 @@ void load_model (Model *m, char *filename){
     if(strcmp_sp(s, "numJoints %d\n")){
       /*puts("numjoints");*/
       sscanf(s, "numJoints %d\n", &m->num_joints);
-      m->joints = calloc(m->num_joints, sizeof(Joint));
+      m->joints = calloc(m->num_joints, sizeof(Md5_joint));
     }else if(strcmp_sp(s, "numMeshes %d\n")){
       /*puts("nummesh");*/
       sscanf(s, "numMeshes %d\n", &m->num_meshes);
-      m->meshes = calloc(m->num_meshes, sizeof(Mesh));
+      m->meshes = calloc(m->num_meshes, sizeof(Md5_mesh));
     }else if(strcmp_sp(s, "joints {\n")){
       /*puts("joints {");*/
-      read_joints(f, m->joints);
+      md5_read_joints(f, m->joints);
     }else if(strcmp_sp(s, "mesh {\n")){
       /*puts("mesh {");*/
-      read_mesh(f, m->meshes + mesh_n);
+      md5_read_mesh(f, m->meshes + mesh_n);
       mesh_n++;
     }else{
       /*puts("...");*/
@@ -271,14 +271,14 @@ void load_model (Model *m, char *filename){
   fclose(f);
 }
 
-void load_hierarchy (FILE *f, Anim *a){
+void md5_load_hierarchy (FILE *f, Md5_anim *a){
   char s[200];
   int i = 0;
   while(fgets(s, 200, f) != NULL){
     if(s[0] == '}'){
       return;
     }else{
-      Hierarchy_item *h;
+      Md5_hierarchy_item *h;
       char name[40];
       int parent;
       int flags;
@@ -300,11 +300,11 @@ void load_hierarchy (FILE *f, Anim *a){
   }
 }
 
-void load_base_frame (FILE *f, Anim *a){
+void md5_load_base_frame (FILE *f, Md5_anim *a){
   char s[200];
   int i = 0;
   while(fgets(s, 200, f) != NULL){
-    Base_frame_joint *b = a->base_frame + i;
+    Md5_base_frame_joint *b = a->base_frame + i;
     if(s[0] == '}'){
       return;
     }else{
@@ -323,7 +323,7 @@ void load_base_frame (FILE *f, Anim *a){
   }
 }
 
-void load_frame (FILE *f, Anim *a, int n){
+void md5_load_frame (FILE *f, Md5_anim *a, int n){
   char s[200];
   int i = 0;
   a->frames[n] = calloc(a->num_animated_components, sizeof(float));
@@ -345,10 +345,10 @@ void load_frame (FILE *f, Anim *a, int n){
   }
 }
 
-void reset_joints (Anim *a){
+void md5_reset_joints (Md5_anim *a){
  int i;
  for (i = 0; i < a->num_joints; i++ ) {
-  Joint *j = a->joints + i;
+  Md5_joint *j = a->joints + i;
   j->name = a->hierarchy[i].name; /* ? */
   j->parent_index = a->hierarchy[i].parent;
   if(j->parent_index == -1)
@@ -360,11 +360,11 @@ void reset_joints (Anim *a){
  }
 }
 
-void build_joints (Anim *a){
+void md5_build_joints (Md5_anim *a){
   int i;
   for(i = 0; i < a->num_joints; i++ ){
-    Joint *j = a->joints + i;
-    Joint *p = j->parent;
+    Md5_joint *j = a->joints + i;
+    Md5_joint *p = j->parent;
     if(p != NULL){
       j->pos = vec3d_plus(p->pos, quat_rot(p->orient, j->pos));
       j->orient = quat_mul(p->orient, j->orient);
@@ -372,7 +372,7 @@ void build_joints (Anim *a){
   }
 }
 
-void load_anim (char *filename, Anim *a){
+void md5_load_anim (char *filename, Md5_anim *a){
   FILE *f = fopen(filename, "r");
   char s[200];
   while(fgets(s, 200, f) != NULL){
@@ -381,32 +381,32 @@ void load_anim (char *filename, Anim *a){
       a->frames = calloc(a->num_frames, sizeof(float*));
     }else if(strcmp_sp(s, "numJoints %d\n")){
       sscanf(s, "numJoints %d\n", &a->num_joints);
-      a->hierarchy = calloc(a->num_joints, sizeof(Hierarchy_item));
-      a->base_frame = calloc(a->num_joints, sizeof(Base_frame_joint));
+      a->hierarchy = calloc(a->num_joints, sizeof(Md5_hierarchy_item));
+      a->base_frame = calloc(a->num_joints, sizeof(Md5_base_frame_joint));
     }else if(strcmp_sp(s, "frameRate %d\n")){
       /*...*/
     }else if(strcmp_sp(s, "numAnimatedComponents %d\n")){
       sscanf(s, "numAnimatedComponents %d\n",
           &a->num_animated_components);
     }else if(strcmp_sp(s, "hierarchy {\n")){
-      load_hierarchy(f, a);
+      md5_load_hierarchy(f, a);
     }else if(strcmp_sp(s, "bounds {\n")){
       /*loadBounds(f, a);*/
     }else if(strcmp_sp(s, "baseframe {\n")){
-      load_base_frame(f, a);
+      md5_load_base_frame(f, a);
     }else if(strcmp_sp(s, "frame %d {\n")){
       int n;
       sscanf(s, "frame %d{\n", &n);
-      load_frame(f, a, n);
+      md5_load_frame(f, a, n);
     }
   }
   fclose(f);
-  a->joints = calloc(a->num_joints, sizeof(Joint));
-  reset_joints(a);
-  build_joints(a);
+  a->joints = calloc(a->num_joints, sizeof(Md5_joint));
+  md5_reset_joints(a);
+  md5_build_joints(a);
 }
 
-void mesh_draw (Mesh *m){
+void md5_mesh_draw (Md5_mesh *m){
   int i, k;
   glBindTexture(GL_TEXTURE_2D, m->texture);
   glBegin(GL_TRIANGLES);
@@ -422,32 +422,32 @@ void mesh_draw (Mesh *m){
   glEnd();
 }
 
-void model_draw (Model *m){
+void md5_model_draw (Md5_model *m){
   int i;
   for(i = 0; i < m->num_meshes; i++)
-    mesh_draw(m->meshes + i);
+    md5_mesh_draw(m->meshes + i);
 }
 
-void set_frame (Model *m, Anim *a, int n){
+void md5_set_frame (Md5_model *m, Md5_anim *a, int n){
   int i;
   if(n < 0)
     n = a->num_frames - 1;
   if(n >= a->num_frames)
     n = 0;
   a->frame = n;
-  reset_joints(a);
+  md5_reset_joints(a);
   for(i = 0; i < a->num_joints; i++){
     int flags = a->hierarchy[i].flags;
     int pos   = a->hierarchy[i].start_index;
-    Joint *j = a->joints + i;
-    if(flags &  1) j->pos.x = a->frames[n][pos++];
-    if(flags &  2) j->pos.y = a->frames[n][pos++];
-    if(flags &  4) j->pos.z = a->frames[n][pos++];
-    if(flags &  8) j->orient.x = a->frames[n][pos++];
+    Md5_joint *j = a->joints + i;
+    if(flags & 1) j->pos.x = a->frames[n][pos++];
+    if(flags & 2) j->pos.y = a->frames[n][pos++];
+    if(flags & 4) j->pos.z = a->frames[n][pos++];
+    if(flags & 8) j->orient.x = a->frames[n][pos++];
     if(flags & 16) j->orient.y = a->frames[n][pos++];
     if(flags & 32) j->orient.z = a->frames[n][pos++];
     renormalize(&j->orient);
   }
-  build_joints(a);
-  model_compute(m, a->joints);
+  md5_build_joints(a);
+  md5_model_compute(m, a->joints);
 }
