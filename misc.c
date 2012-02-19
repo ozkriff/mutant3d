@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdarg.h>
 #include "bool.h"
 
 /*Compare strings till first space or tab.
@@ -22,4 +23,12 @@ char *my_strdup (const char *s){
     if(d)
         strcpy(d, s);
     return(d);
+}
+
+void die (const char *errstr, ...){
+  va_list l;
+  va_start(l, errstr);
+  vfprintf(stderr, errstr, l);
+  va_end(l);
+  exit(EXIT_FAILURE);
 }
