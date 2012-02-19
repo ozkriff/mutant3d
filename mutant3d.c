@@ -101,13 +101,10 @@ init (void) {
 
 void md5_init (void){
   md5_load_model(&m, "data/guard/bob.md5mesh");
-  md5_model_compute(&m, m.joints);
-#if 1
-  md5_model_debug_print(&m);
-#endif
   md5_load_anim("data/guard/bob.md5anim", &anim);
   md5_model_compute(&m, anim.joints);
-#if 1
+#if 0
+  md5_model_debug_print(&m);
   md5_anim_debug_print(&anim);
 #endif
   md5_set_frame(&m, &anim, 0);
