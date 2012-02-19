@@ -99,8 +99,7 @@ init (void) {
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 }
 
-int main (void){
-  init();
+void md5_init (void){
   md5_load_model(&m, "data/guard/bob.md5mesh");
   md5_model_compute(&m, m.joints);
 #if 1
@@ -112,6 +111,11 @@ int main (void){
   md5_anim_debug_print(&anim);
 #endif
   md5_set_frame(&m, &anim, 0);
+}
+
+int main (void){
+  init();
+  md5_init();
   main_loop();
   shut_down(0);
   return(0);
