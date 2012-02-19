@@ -7,14 +7,19 @@
 #include "misc.h"
 #include "math.h"
 #include "md5.h"
+#include "obj.h"
 #include "gl.h"
 
 float rotate_x = 0;
 float rotate_y = 0;
 float rotate_z = 0;
 const float rotations_per_tick = 0.2f;
+
 Md5_model m;
 Md5_anim anim;
+
+Obj_model obj_m;
+GLuint obj_tex;
 
 void shut_down (int return_code){
   glfwTerminate();
@@ -24,6 +29,7 @@ void shut_down (int return_code){
 void draw(void){
   glLoadIdentity();
   glTranslatef(0, 0, -100);
+  glPushMatrix();
   glRotatef(-90, 1, 0, 0);
   glRotatef(rotate_y, 1, 0, 0);
   glRotatef(rotate_z, 0, 0, 1);
@@ -38,6 +44,10 @@ void draw(void){
     model_draw(&m);
   }
 #endif
+  glPopMatrix();
+  glRotatef(rotate_y, 1, 0, 0);
+  glRotatef(rotate_z, 0, 1, 0);
+  obj_draw(obj_tex, &obj_m);
 }
 
 void main_loop (void){
@@ -110,9 +120,15 @@ void md5_init (void){
   md5_set_frame(&m, &anim, 0);
 }
 
+void obj_init (void){
+  obj_read (&obj_m, "data/obj_test/model.obj");
+  obj_tex = load_texture("data/obj_test/test.tga");
+}
+
 int main (void){
   init();
   md5_init();
+  obj_init();
   main_loop();
   shut_down(0);
   return(0);

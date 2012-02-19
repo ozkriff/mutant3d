@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-std=c89 -g -Wall --pedantic
-OBJS=mutant3d.o md5.o math.o gl.o misc.o
+OBJS=mutant3d.o md5.o math.o gl.o misc.o obj.o
 all: mutant3d
 mutant3d: $(OBJS)
 	gcc -g -o mutant3d $(OBJS) -lglfw -lGL -lGLU -lm
