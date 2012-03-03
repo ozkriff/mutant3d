@@ -10,7 +10,7 @@
 #include "gl.h"
 
 Vec3 md5_joint_transform (Md5_joint *j, Vec3 v){
-  return(vec3d_plus(quat_rot(j->orient, v), j->pos));
+  return(vec3_plus(quat_rot(j->orient, v), j->pos));
 }
 
 void md5_anim_debug_print (Md5_anim *a){
@@ -227,7 +227,7 @@ void md5_read_joints (FILE *f, Md5_joint *joints){
           &index,
           &pos.x, &pos.y, &pos.z,
           &(q.x), &(q.y), &(q.z));
-      renormalize(&q);
+      quat_renormalize(&q);
       j = joints + no;
       j->name        = my_strdup(name);
       j->parent_index = index;
@@ -318,7 +318,7 @@ void md5_load_base_frame (FILE *f, Md5_anim *a){
       b->orient.z = rot.z;
       b->orient.w = 0;
     }
-    renormalize(&b->orient);
+    quat_renormalize(&b->orient);
     i++;
   }
 }
@@ -366,7 +366,7 @@ void md5_build_joints (Md5_anim *a){
     Md5_joint *j = a->joints + i;
     Md5_joint *p = j->parent;
     if(p != NULL){
-      j->pos = vec3d_plus(p->pos, quat_rot(p->orient, j->pos));
+      j->pos = vec3_plus(p->pos, quat_rot(p->orient, j->pos));
       j->orient = quat_mul(p->orient, j->orient);
     }
   }
@@ -446,7 +446,7 @@ void md5_set_frame (Md5_model *m, Md5_anim *a, int n){
     if(flags & 8) j->orient.x = a->frames[n][pos++];
     if(flags & 16) j->orient.y = a->frames[n][pos++];
     if(flags & 32) j->orient.z = a->frames[n][pos++];
-    renormalize(&j->orient);
+    quat_renormalize(&j->orient);
   }
   md5_build_joints(a);
   md5_model_compute(m, a->joints);
