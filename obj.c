@@ -1,14 +1,17 @@
+/*See LICENSE file for copyright and license details.*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <GL/glfw.h>
 #include "bool.h"
 #include "math.h"
+#include "mutant3d.h"
 #include "obj.h"
 #include "misc.h"
 
 /*TODO "usemtl Material_CUBE_WARRIOR.bmp"*/
-void obj_read (Obj_model *m, char *filename){
+void obj_read(Obj_model *m, char *filename){
   char buffer[100];
   FILE *file;
   int v_i = 0;
@@ -29,22 +32,22 @@ void obj_read (Obj_model *m, char *filename){
       m->f_count++;
   }
   rewind(file);
-  m->vertexes = malloc(m->v_count * sizeof(Vec3));
-  m->normals = malloc(m->n_count * sizeof(Vec3));
-  m->text_coords = malloc(m->t_count * sizeof(Vec2));
-  m->faces = malloc(m->f_count * sizeof(Obj_triangle));
+  m->vertexes = my_alloc(m->v_count, sizeof(V3f));
+  m->normals = my_alloc(m->n_count, sizeof(V3f));
+  m->text_coords = my_alloc(m->t_count, sizeof(V2f));
+  m->faces = my_alloc(m->f_count, sizeof(Obj_triangle));
   while(fgets(buffer, 100, file)){
     if(buffer[0] == 'v' && buffer[1] == ' '){
       /*Vertex coords*/
       int items;
-      Vec3 *v;
+      V3f *v;
       v = m->vertexes + v_i;
       items = sscanf(buffer, "v %f %f %f",
              &v->x, &v->y, &v->z);
       if(items != 3)
         die("v: items != 3\n");
 #if 1
-#define resize_coefficient (7.) /*TODO: remove later*/
+#define resize_coefficient (7.0f) /*TODO: remove later*/
       m->vertexes[v_i].x *= resize_coefficient;
       m->vertexes[v_i].y *= resize_coefficient;
       m->vertexes[v_i].z *= resize_coefficient;
@@ -53,7 +56,7 @@ void obj_read (Obj_model *m, char *filename){
     }else if(buffer[0] == 'v' && buffer[1] == 'n'){
       /*Vertex normals*/
       int items;
-      Vec3 *norm = m->normals + n_i;
+      V3f *norm = m->normals + n_i;
       items = sscanf(buffer, "vn %f %f %f",
           &norm->x, &norm->y, &norm->z);
       if(items != 3)
@@ -62,7 +65,7 @@ void obj_read (Obj_model *m, char *filename){
     }else if (buffer[0] == 'v' && buffer[1] == 't'){
       /*Texture coords*/
       int items;
-      Vec2 *tex = m->text_coords + t_i;
+      V2f *tex = m->text_coords + t_i;
       items = sscanf(buffer, "vt %f %f", &tex->x, &tex->y);
       if(items != 2)
         die("vt: items != 2\n");
@@ -109,27 +112,27 @@ void obj_read (Obj_model *m, char *filename){
   fclose(file);
 }
 
-void obj_debug_print (Obj_model *m){
+void obj_debug_print(Obj_model *m){
   int i;
   for(i = 0; i <= m->v_count; i++){
-    Vec3 *v = m->vertexes + i;
+    V3f *v = m->vertexes + i;
     printf("v: %f %f %f\n", v->x, v->y, v->z);
   }
 }
 
-void obj_draw (GLuint tex_id, Obj_model *m){
+void obj_draw(GLuint tex_id, Obj_model *m){
   int i, j;
   glBindTexture(GL_TEXTURE_2D, tex_id);
   glBegin(GL_TRIANGLES);
   for(i = 0; i <= m->f_count; i++){
     Obj_triangle *t = m->faces + i;
     for(j = 0; j < 3; j++){
-      int tex_id = t->t[j] - 1;
-      int vert_id = t->v[j] - 1;
-      Vec2 *tex = m->text_coords + tex_id;
-      Vec3 *vert = m->vertexes + vert_id;
-      glTexCoord2f(tex->x, tex->y);
-      glVertex3f(vert->x, vert->y, vert->z);
+      int texture_id = t->t[j] - 1;
+      int vertex_id = t->v[j] - 1;
+      V2f *texture = m->text_coords + texture_id;
+      V3f *vertex = m->vertexes + vertex_id;
+      glTexCoord2f(texture->x, texture->y);
+      glVertex3f(vertex->x, vertex->y, vertex->z);
     }
   }
   glEnd();

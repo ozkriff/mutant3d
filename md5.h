@@ -1,7 +1,9 @@
+/*See LICENSE file for copyright and license details.*/
+
 typedef struct { int index[3]; } Md5_triangle;
 
 typedef struct{
-  Vec2 tex;
+  V2f tex;
   int weight_index;
   int weight_count;
 } Md5_vertex;
@@ -9,7 +11,7 @@ typedef struct{
 typedef struct{
   int joint_index;
   float weight;
-  Vec3 pos;
+  V3f pos;
 } Md5_weight;
 
 typedef struct{
@@ -20,7 +22,7 @@ typedef struct{
   Md5_vertex *vertices;
   Md5_triangle *tris;
   Md5_weight *weights;
-  Vec3 *points;
+  V3f *points;
   int max_joints_per_vert;
   GLuint texture;
 } Md5_mesh;
@@ -30,7 +32,7 @@ struct Md5_joint{
   char *name;
   int parent_index;
   Md5_joint *parent;
-  Vec3 pos;
+  V3f pos;
   Quat orient;
 };
 
@@ -49,7 +51,7 @@ typedef struct{
 } Md5_hierarchy_item;
 
 typedef struct{
-  Vec3 pos;
+  V3f pos;
   Quat orient;
 } Md5_base_frame_joint;
 
@@ -65,12 +67,12 @@ typedef struct{
   int frame;
 } Md5_anim;
  
-void md5_anim_debug_print (Md5_anim *a);
-void md5_mesh_debug_print (Md5_mesh *m);
-Vec3 md5_joint_transform (Md5_joint *j, Vec3 v);
-void md5_set_frame (Md5_model *m, Md5_anim *a, int n);
-void md5_model_draw (Md5_model *m);
-void md5_load_anim (char *filename, Md5_anim *a);
-void md5_load_model (Md5_model *m, char *filename);
-void md5_model_compute (Md5_model *m, Md5_joint *joints);
-void md5_model_debug_print (Md5_model *m);
+void md5_anim_debug_print(Md5_anim *a);
+void md5_mesh_debug_print(Md5_mesh *m);
+V3f md5_joint_transform(Md5_joint *j, V3f v);
+void md5_set_frame(Md5_model *m, Md5_anim *a, int n);
+void md5_model_draw(Md5_model *m);
+void md5_load_anim(char *filename, Md5_anim *a);
+void md5_load_model(Md5_model *m, char *filename);
+void md5_model_compute(Md5_model *m, Md5_joint *joints);
+void md5_model_debug_print(Md5_model *m);

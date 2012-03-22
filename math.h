@@ -1,27 +1,36 @@
+/*See LICENSE file for copyright and license details.*/
+
+#ifndef M_PI
 #define M_PI 3.14159265358979323846264338327
+#endif
+
+typedef unsigned int uint;
 
 typedef struct { float x, y, z, w; } Quat;
-typedef struct { float x, y, z; } Vec3;
-typedef struct { float x, y; } Vec2;
+typedef struct { float x, y, z; } V3f;
+typedef struct { int x, y, z; } V3i;
+typedef struct { float x, y; } V2f;
 
-float deg2rad (float deg);
-float rad2deg (float rad);
+float deg2rad(float deg);
+float rad2deg(float rad);
 
-Quat quat_mul (Quat a, Quat b);
-Vec3 quat_rot (Quat q, Vec3 v);
-void quat_renormalize (Quat *q);
+Quat quat_mul(Quat a, Quat b);
+V3f quat_rot(Quat q, V3f v);
+void quat_renormalize(Quat *q);
 
-Vec2 mk_vec2 (float x, float y);
-Vec2 vec2_plus (Vec2 a, Vec2 b);
-float vec2_dot (Vec2 a, Vec2 b);
-Vec2 vec2_mul_float (Vec2 v, float f);
-Vec2 vec2_subt (Vec2 a, Vec2 b);
-float vec2_length (Vec2 v);
-Vec2 vec2_rotate (Vec2 v, float angle);
+V2f mk_v2f(float x, float y);
+V2f v2f_plus(V2f a, V2f b);
+float v2f_dot(V2f a, V2f b);
+V2f v2f_mul_float(V2f v, float f);
+V2f v2f_subt(V2f a, V2f b);
+float v2f_length(V2f v);
+V2f v2f_rotate(V2f v, float angle);
 
-Vec3 mk_vec3 (float x, float y, float z);
-Vec3 vec3_plus (Vec3 a, Vec3 b);
-Vec3 vec3_subt (Vec3 a, Vec3 b);
-float vec3_dot (Vec3 a, Vec3 b);
-Vec3 vec3_mul_float (Vec3 v, float f);
-float vec3_length (Vec3 v);
+V3f mk_v3f(float x, float y, float z);
+V3f v3f_plus(V3f a, V3f b);
+V3f v3f_subt(V3f a, V3f b);
+float v3f_dot(V3f a, V3f b);
+V3f v3f_mul_float(V3f v, float f);
+float v3f_length(V3f v);
+
+V3i mk_v3i(int x, int y, int z);

@@ -1,27 +1,29 @@
+/*See LICENSE file for copyright and license details.*/
+
 #include "GL/glfw.h"
 #include "bool.h"
-#include "misc.h"
 #include "math.h"
+#include "mutant3d.h"
+#include "misc.h"
 
-GLuint load_texture (char *filename){
-  GLuint id;
-  glGenTextures(1, &id);
-  glBindTexture(GL_TEXTURE_2D, id);
+bool load_texture(char *filename, GLuint *id){
+  glGenTextures(1, id);
+  glBindTexture(GL_TEXTURE_2D, *id);
   if(glfwLoadTexture2D(filename, GLFW_BUILD_MIPMAPS_BIT)){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
         GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
         GL_LINEAR);
-    return(id);
+    return true;
   }else{
     die("gl.c: load_texture(): Can't load file '%s'\n",
         filename);
-    return(-1);
+    return false;
   }
 }
 
 /*Translate window coords to 3d world coords.*/
-void win2world (int x, int y, Vec3 *p){
+void win2world(int x, int y, V3f *p){
   GLint viewport[4];
   GLdouble projection[16];
   GLdouble modelview[16];
@@ -30,12 +32,12 @@ void win2world (int x, int y, Vec3 *p){
   glGetIntegerv(GL_VIEWPORT,viewport);
   glGetDoublev(GL_PROJECTION_MATRIX, projection);
   glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-  vx = x;
-  vy = viewport[3] - (float)y;
-  glReadPixels(vx, (int)vy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &vz);
+  vx = (float)x;
+  vy = (float)viewport[3] - (float)y;
+  glReadPixels((int)vx, (int)vy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &vz);
   gluUnProject(vx, vy, vz, modelview, projection, viewport,
       &wx, &wy, &wz);
-  p->x = wx;
-  p->y = wy;
-  p->z = wz;
+  p->x = (float)wx;
+  p->y = (float)wy;
+  p->z = (float)wz;
 }
