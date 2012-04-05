@@ -6,10 +6,12 @@ CFLAGS=-g
 CFLAGS+=-std=c89
 CFLAGS+=-Wall --pedantic -Wextra
 CFLAGS+=-Wconversion -Wswitch-default -Wshadow
+CFLAGS += -I../sdl2/exec/include/SDL2
+LDFLAGS += -L../sdl2/exec/lib -lSDL2 -lSDL_image -lGL -lGLU -lm
 OBJS=mutant3d.o md5.o math.o gl.o misc.o obj.o list.o path.o
 all: mutant3d
 mutant3d: $(OBJS)
-	$(CC) -g -o mutant3d $(OBJS) -lglfw -lGL -lGLU -lm
+	$(CC) -g -o mutant3d $(OBJS) $(LDFLAGS)
 md5.o: md5.h bool.h math.h misc.h mutant3d.h gl.h
 mutant3d.o: mutant3d.h bool.h list.h math.h misc.h md5.h obj.h gl.h path.h
 math.o: math.h bool.h mutant3d.h misc.h

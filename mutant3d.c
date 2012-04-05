@@ -4,9 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <GL/glfw.h>
 #include <time.h>
 #include <assert.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
+#include <SDL_scancode.h>
+#include <SDL_image.h>
 #include "bool.h"
 #include "list.h"
 #include "math.h"
@@ -66,6 +69,9 @@ GLuint obj_tex;
 
 GLuint floor_texture;
 GLuint wall_texture;
+
+static SDL_GLContext context;
+SDL_Window *win = NULL;
 
 /*TODO: remove me*/
 void build_map_array(void);
@@ -197,7 +203,7 @@ void calc_map_clearence(int max_size){
 }
 
 void shut_down(int return_code){
-  glfwTerminate();
+  /*glfwTerminate();*/
   exit(return_code);
 }
 
@@ -384,10 +390,12 @@ void map_from_file(const char *filename){
   fclose(f);
 }
 
-void keys_callback(int key, int action) {
-  if(action != GLFW_PRESS)
+void keys_callback(SDL_KeyboardEvent e) {
+  SDL_Keycode key = e.keysym.sym;
+  Uint8 *state = SDL_GetKeyboardState(NULL);
+  if(e.type != SDL_KEYDOWN)
     return;
-  if(!glfwGetKey(GLFW_KEY_LCTRL) && !glfwGetKey(GLFW_KEY_RCTRL)){
+  if(!state[SDL_SCANCODE_LCTRL] && !state[SDL_SCANCODE_RCTRL]){
     if(key >= '1' && key <= '9'){
       int n = key - '1';
       enabled_levels[n] = !enabled_levels[n];
@@ -396,49 +404,49 @@ void keys_callback(int key, int action) {
       build_path_array();
     }
   }
-  if(key == 'H' && active_block_pos.x > 0)
+  if(state[SDL_SCANCODE_H] && active_block_pos.x > 0)
     active_block_pos.x--;
-  else if(key == 'J' && active_block_pos.y < MAP_Y - 1)
+  else if(state[SDL_SCANCODE_J] && active_block_pos.y < MAP_Y - 1)
     active_block_pos.y++;
-  else if(key == 'K' && active_block_pos.y > 0)
+  else if(state[SDL_SCANCODE_K] && active_block_pos.y > 0)
     active_block_pos.y--;
-  else if(key == 'L' && active_block_pos.x < MAP_X - 1)
+  else if(state[SDL_SCANCODE_L] && active_block_pos.x < MAP_X - 1)
     active_block_pos.x++;
-  else if(key == 'D' && active_block_pos.z > 0)
+  else if(key == SDLK_d && active_block_pos.z > 0)
     active_block_pos.z--;
-  else if(key == 'U' && active_block_pos.z < MAP_Z - 1)
+  else if(key == SDLK_u && active_block_pos.z < MAP_Z - 1)
     active_block_pos.z++;
-  else if(key == 'P'){
+  else if(key == SDLK_p){
     show_path = !show_path;
     build_map_array();
-  }else if(key == 'M'){
+  }else if(key == SDLK_m){
     show_map = !show_map;
     build_map_array();
-  }else if(key == 'O'){
+  }else if(key == SDLK_q){
     show_map_outline = !show_map_outline;
     build_map_array();
-  }else if(key == 'X' && block(active_block_pos)){
+  }else if(key == SDLK_x){
     fill_map(active_block_pos);
     build_path_array();
-  }else if(key == 'S')
+  }else if(key == SDLK_s)
     map_to_file("out.map");
   else if(key == 'Z'){
     map_from_file("out.map");
     build_map_array();
   }
-  else if(key == 'C'){
+  else if(key == SDLK_c){
     show_clearence = !show_clearence;
     build_map_array();
   }
   {
     Block3 *b = block(active_block_pos);
-    if(key == '=' && b){
+    if(key == SDLK_PLUS && b){
       b->h++;
       build_map_array();
-    }else if(key == '-' && b){
+    }else if(key == SDLK_MINUS && b){
       b->h--;
       build_map_array();
-    }else if(key == 'T'){
+    }else if(key == SDLK_t){
       if(b){
         free(b);
         map[active_block_pos.z][active_block_pos.y][active_block_pos.x] = NULL;
@@ -453,7 +461,7 @@ void keys_callback(int key, int action) {
       build_map_array();
     }
   }
-  if(glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL)){
+  if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]){
     Block3 *b = block(active_block_pos);
     if(b){
       bool *w = b->walls;
@@ -467,58 +475,94 @@ void keys_callback(int key, int action) {
 }
 
 void keys(void){
-  if(glfwGetKey(GLFW_KEY_ESC) || glfwGetKey('Q')){
+  Uint8 *state = SDL_GetKeyboardState(NULL);
+  if(state[SDL_SCANCODE_ESCAPE] || state[SDL_SCANCODE_Q]){
     done = true;
-  }else if(glfwGetKey(GLFW_KEY_LCTRL)){
-    if(glfwGetKey(GLFW_KEY_UP)){
+  }else if(state[SDL_SCANCODE_LCTRL]){
+    if(state[SDL_SCANCODE_UP]){
       map_pos.x -= (float)sin(deg2rad(rotate_z)) * (zoom / 40.0f);
       map_pos.y -= (float)cos(deg2rad(rotate_z)) * (zoom / 40.0f);
-    }else if(glfwGetKey(GLFW_KEY_DOWN)){
+    }else if(state[SDL_SCANCODE_DOWN]){
       map_pos.x += (float)sin(deg2rad(rotate_z)) * (zoom / 40.0f);
       map_pos.y += (float)cos(deg2rad(rotate_z)) * (zoom / 40.0f);
     }
-    if(glfwGetKey(GLFW_KEY_LEFT)){
+    if(state[SDL_SCANCODE_LEFT]){
       map_pos.x -= (float)sin(deg2rad(rotate_z + 90)) * (zoom / 40.0f);
       map_pos.y -= (float)cos(deg2rad(rotate_z + 90)) * (zoom / 40.0f);
-    }else if(glfwGetKey(GLFW_KEY_RIGHT)){
+    }else if(state[SDL_SCANCODE_RIGHT]){
       map_pos.x += (float)sin(deg2rad(rotate_z + 90)) * (zoom / 40.0f);
       map_pos.y += (float)cos(deg2rad(rotate_z + 90)) * (zoom / 40.0f);
     }
-  }else if(glfwGetKey(GLFW_KEY_LALT)){
-    if(glfwGetKey(GLFW_KEY_UP) && zoom > 20)
-      zoom -= 3;
-    else if(glfwGetKey(GLFW_KEY_DOWN) && zoom < 400)
-      zoom += 3;
+  }else if(state[SDL_SCANCODE_LALT]){
+    if(state[SDL_SCANCODE_UP] && zoom > 5)
+      zoom -= 1;
+    else if(state[SDL_SCANCODE_DOWN] && zoom < 100)
+      zoom += 1;
   }else{
-    if(glfwGetKey(GLFW_KEY_LEFT)){
+    if(state[SDL_SCANCODE_LEFT]){
       rotate_z -= rotations_per_tick;
       if(rotate_z < 0)
         rotate_z += 360;
-    }else if(glfwGetKey(GLFW_KEY_RIGHT)){
+    }else if(state[SDL_SCANCODE_RIGHT]){
       rotate_z += rotations_per_tick;
       if(rotate_z > 360)
         rotate_z -= 360;
     }
-    if(glfwGetKey(GLFW_KEY_UP) && rotate_x > 0)
+    if(state[SDL_SCANCODE_UP] && rotate_x > 0)
       rotate_x -= rotations_per_tick;
-    else if(glfwGetKey(GLFW_KEY_DOWN) && rotate_x < 100)
+    else if(state[SDL_SCANCODE_DOWN] && rotate_x < 100)
       rotate_x += rotations_per_tick;
+  }
+}
+
+#if 0
+void print_world(){
+  int winx, winy;
+  V3f v;
+  glfwGetMousePos(&winx, &winy);
+  assert(winx >= 0 && winy >= 0);
+  win2world(winx, winy, &v);
+  printf("%3d:%3d [% 3.3f % 3.3f % 3.3f]\n", winx, winy, v.x, v.y, v.z);
+}
+#endif
+
+void events(void){
+  SDL_Event e;
+  while (SDL_PollEvent(&e)) {
+    switch (e.type) {
+      case SDL_WINDOWEVENT:
+        switch (e.window.event) {
+          case SDL_WINDOWEVENT_CLOSE:
+            if (win)
+              SDL_DestroyWindow(win);
+            break;
+          default:
+            /* TODO */
+            /*die("events(): default case for"
+                " window.event %d\n", e.window.type);*/
+            break;
+        }
+        break;
+      case SDL_KEYDOWN:
+        keys_callback(e.key);
+        break;
+      default:
+	/* TODO */
+        /*die("events(): default case for type %d\n", e.type);*/
+        break;
+    }
   }
 }
 
 void main_loop(void){
   while(!done) {
+    events();
     keys();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw();
-    glfwSwapBuffers();
-    if(0){
-      int winx, winy;
-      V3f v;
-      glfwGetMousePos(&winx, &winy);
-      win2world(winx, winy, &v);
-      printf("%3d:%3d [% 3.3f % 3.3f % 3.3f]\n", winx, winy, v.x, v.y, v.z);
-    }
+    SDL_GL_SwapWindow(win);
+    /* print_world(); */
+    SDL_Delay(10);
   }
 }
 
@@ -526,13 +570,12 @@ void init(void) {
   const int window_width = 700;
   const int window_height = 500;
   float aspect_ratio = (float)window_height / (float)window_width;
-  if(glfwInit() != GL_TRUE)
-    shut_down(1);
-  if(glfwOpenWindow(window_width, window_height,
-      5, 6, 5,
-      0, 8, 0, GLFW_WINDOW) != GL_TRUE){
-    shut_down(1);
-  }
+  SDL_VideoInit(NULL);
+  win = SDL_CreateWindow("SDL TEST",
+      SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+      window_width, window_height, SDL_WINDOW_OPENGL);
+  context = SDL_GL_CreateContext(win);
+  IMG_Init(0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glFrustum(0.5, -0.5, -0.5 * aspect_ratio, 0.5 * aspect_ratio, 1, 500);
@@ -559,7 +602,7 @@ void init(void) {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glLineWidth(1.0);
 #endif
-  glfwSetKeyCallback(keys_callback);
+  /* glfwSetKeyCallback(keys_callback); */
   glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
   glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
   glEnable(GL_LIGHT1);
