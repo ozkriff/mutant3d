@@ -323,13 +323,13 @@ void draw(void){
   glPopMatrix();
 }
 
-void print_block(FILE *f, Block3 *b, int index){
+void print_block(FILE *f, Block3 *b, int i){
   if(!b){
     fprintf(f, ".");
     return;
   }
   fprintf(f, "%d:: type:%d h:%d walls:%d %d %d %d",
-      index,
+      i,
       b->t,
       b->h,
       (int)b->walls[0],
