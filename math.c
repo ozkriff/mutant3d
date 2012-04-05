@@ -16,6 +16,15 @@ float rad2deg(float rad){
   return (rad * 180.0f) / (float)M_PI;
 }
 
+Quat mk_quat(float x, float y, float z, float w){
+  Quat q;
+  q.x = x;
+  q.y = y;
+  q.z = z;
+  q.w = w;
+  return q;
+}
+
 Quat quat_mul(Quat a, Quat b){
   Quat q;
   q.x = a.y*b.z - a.z*b.y + a.w*b.x + a.x*b.w;
@@ -29,14 +38,8 @@ V3f quat_rot(Quat q, V3f v){
   Quat p;
   Quat qConj;
   V3f v2;
-  p.x = v.x;
-  p.y = v.y;
-  p.z = v.z;
-  p.w = 0;
-  qConj.x = -q.x;
-  qConj.y = -q.y;
-  qConj.z = -q.z;
-  qConj.w = q.w;
+  p = mk_quat(v.x, v.y, v.z, 0);
+  qConj = mk_quat(-q.x, -q.y, -q.z, q.w);
   p = quat_mul(q, quat_mul(p, qConj));
   v2.x = p.x;
   v2.y = p.y;
