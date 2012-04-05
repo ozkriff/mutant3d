@@ -10,7 +10,7 @@ V3i neib(V3i pos, Dir i);
 void fixnum(int min, int max, int *n);
 int rnd(int min, int max);
 
-#define COPY2HEAP(data, type) \
+#define COPY_TO_HEAP(data, type) \
   mk_node(copy2heap(data, sizeof(type)))
 
 bool is_able_to_inc_v3i(V3i *pos);

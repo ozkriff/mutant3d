@@ -17,7 +17,7 @@ static void push(V3i m, V3i parent, int newcost) {
   Block3 *b = block(m);
   b->cost = newcost;
   b->parent = parent;
-  push_node(&stack, COPY2HEAP(&m, V3i));
+  push_node(&stack, COPY_TO_HEAP(&m, V3i));
 }
 
 static V3i pop(void){
@@ -135,10 +135,10 @@ void fill_map(V3i pos){
 List get_path(V3i pos){
   List path = {NULL, NULL, 0};
   while(block(pos)->cost != 0){
-    push_node(&path, COPY2HEAP(&pos, V3i));
+    push_node(&path, COPY_TO_HEAP(&pos, V3i));
     pos = block(pos)->parent;
   }
   /*Add start position.*/
-  push_node(&path, COPY2HEAP(&pos, V3i));
+  push_node(&path, COPY_TO_HEAP(&pos, V3i));
   return(path);
 }
