@@ -37,14 +37,10 @@ Quat quat_mul(Quat a, Quat b){
 V3f quat_rot(Quat q, V3f v){
   Quat p;
   Quat qConj;
-  V3f v2;
   p = mk_quat(v.x, v.y, v.z, 0);
   qConj = mk_quat(-q.x, -q.y, -q.z, q.w);
   p = quat_mul(q, quat_mul(p, qConj));
-  v2.x = p.x;
-  v2.y = p.y;
-  v2.z = p.z;
-  return v2;
+  return mk_v3f(p.x, p.y, p.z);
 }
 
 V3f mk_v3f(float x, float y, float z){
