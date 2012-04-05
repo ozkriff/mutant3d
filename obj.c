@@ -32,10 +32,10 @@ void obj_read(Obj_model *m, char *filename){
       m->f_count++;
   }
   rewind(file);
-  m->vertexes = my_alloc(m->v_count, sizeof(V3f));
-  m->normals = my_alloc(m->n_count, sizeof(V3f));
-  m->text_coords = my_alloc(m->t_count, sizeof(V2f));
-  m->faces = my_alloc(m->f_count, sizeof(Obj_triangle));
+  m->vertexes = ALLOCATE(m->v_count, V3f);
+  m->normals = ALLOCATE(m->n_count, V3f);
+  m->text_coords = ALLOCATE(m->t_count, V2f);
+  m->faces = ALLOCATE(m->f_count, Obj_triangle);
   while(fgets(buffer, 100, file)){
     if(buffer[0] == 'v' && buffer[1] == ' '){
       /*Vertex coords*/

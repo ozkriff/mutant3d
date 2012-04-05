@@ -8,7 +8,7 @@
 /*Create in heap node that points to 'data' and return
   pointer to rhis node.*/
 Node *mk_node(void *data){
-  Node *n = malloc(sizeof(Node));
+  Node *n = ALLOCATE(1, Node);
   n->data = data;
   n->next = NULL;
   n->prev = NULL;

@@ -17,3 +17,5 @@ bool is_able_to_inc_v3i(V3i *pos);
 void inc_v3i(V3i *pos);
 
 void *my_alloc(int count, int size);
+#define ALLOCATE(count, type) \
+  my_alloc(count, sizeof(type))

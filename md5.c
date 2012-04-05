@@ -158,14 +158,14 @@ void md5_read_mesh(FILE *f, Md5_mesh *m){
       }
     }else if(strcmp_sp(s+1, "numverts %d\n")){
       sscanf(s+1, "numverts %d\n", &m->num_vertices);
-      m->vertices = my_alloc(m->num_vertices, sizeof(Md5_vertex));
-      m->points = my_alloc(m->num_vertices, sizeof(Md5_vertex));
+      m->vertices = ALLOCATE(m->num_vertices, Md5_vertex);
+      m->points = ALLOCATE(m->num_vertices, Md5_vertex);
     }else if(strcmp_sp(s+1, "numtris %d\n")){
       sscanf(s+1, "numtris %d\n", &m->num_tris);
-      m->tris = my_alloc(m->num_tris, sizeof(Md5_triangle));
+      m->tris = ALLOCATE(m->num_tris, Md5_triangle);
     }else if(strcmp_sp(s+1, "numweights %d\n")){
       sscanf(s+1, "numweights %d\n", &m->num_weights);
-      m->weights = my_alloc(m->num_weights, sizeof(Md5_weight));
+      m->weights = ALLOCATE(m->num_weights, Md5_weight);
     }else if(strcmp_sp(s+1, "vert ")){
       Md5_vertex *v;
       int index;
@@ -254,11 +254,11 @@ void md5_load_model(Md5_model *m, char *filename){
     if(strcmp_sp(s, "numJoints %d\n")){
       /*puts("numjoints");*/
       sscanf(s, "numJoints %d\n", &m->num_joints);
-      m->joints = my_alloc(m->num_joints, sizeof(Md5_joint));
+      m->joints = ALLOCATE(m->num_joints, Md5_joint);
     }else if(strcmp_sp(s, "numMeshes %d\n")){
       /*puts("nummesh");*/
       sscanf(s, "numMeshes %d\n", &m->num_meshes);
-      m->meshes = my_alloc(m->num_meshes, sizeof(Md5_mesh));
+      m->meshes = ALLOCATE(m->num_meshes, Md5_mesh);
     }else if(strcmp_sp(s, "joints {\n")){
       /*puts("joints {");*/
       md5_read_joints(f, m->joints);
@@ -328,7 +328,7 @@ void md5_load_base_frame(FILE *f, Md5_anim *a){
 void md5_load_frame(FILE *f, Md5_anim *a, int n){
   char s[200];
   int i = 0;
-  a->frames[n] = my_alloc(a->num_animated_components, sizeof(float));
+  a->frames[n] = ALLOCATE(a->num_animated_components, float);
   while(fgets(s, 200, f) != NULL){
     if(s[0] == '}'){
       return;
@@ -380,11 +380,11 @@ void md5_load_anim(char *filename, Md5_anim *a){
   while(fgets(s, 200, f) != NULL){
     if(strcmp_sp(s, "numFrames %d\n")){
       sscanf(s, "numFrames %d\n", &a->num_frames);
-      a->frames = my_alloc(a->num_frames, sizeof(float*));
+      a->frames = ALLOCATE(a->num_frames, float*);
     }else if(strcmp_sp(s, "numJoints %d\n")){
       sscanf(s, "numJoints %d\n", &a->num_joints);
-      a->hierarchy = my_alloc(a->num_joints, sizeof(Md5_hierarchy_item));
-      a->base_frame = my_alloc(a->num_joints, sizeof(Md5_base_frame_joint));
+      a->hierarchy = ALLOCATE(a->num_joints, Md5_hierarchy_item);
+      a->base_frame = ALLOCATE(a->num_joints, Md5_base_frame_joint);
     }else if(strcmp_sp(s, "frameRate %d\n")){
       /*...*/
     }else if(strcmp_sp(s, "numAnimatedComponents %d\n")){
@@ -403,7 +403,7 @@ void md5_load_anim(char *filename, Md5_anim *a){
     }
   }
   fclose(f);
-  a->joints = my_alloc(a->num_joints, sizeof(Md5_joint));
+  a->joints = ALLOCATE(a->num_joints, Md5_joint);
   md5_reset_joints(a);
   md5_build_joints(a);
 }

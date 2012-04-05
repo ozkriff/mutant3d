@@ -7,6 +7,7 @@
 #include "bool.h"
 #include "math.h"
 #include "mutant3d.h"
+#include "misc.h"
 
 /*TODO maybu should add some checks later?*/
 void *my_alloc(int count, int size){
@@ -30,7 +31,8 @@ bool strcmp_sp(const char *s1, const char *s2){
 }
 
 char *my_strdup(const char *s){
-  char *d = malloc(strlen(s) + 1);
+  char *d;
+  d = ALLOCATE((int)strlen(s) + 1, char);
   if(d)
     strcpy(d, s);
   return d;

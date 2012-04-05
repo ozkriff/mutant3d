@@ -350,7 +350,7 @@ void map_from_file(const char *filename){
       map[p.z][p.y][p.x] = NULL;
 #if 0
       if(p.z == 0){
-        map[p.z][p.y][p.x] = my_alloc(1, sizeof(Block3));
+        map[p.z][p.y][p.x] = ALLOCATE(1, Block3);
         map[p.z][p.y][p.x]->t = B_FLOOR;
       }
 #endif
@@ -358,7 +358,7 @@ void map_from_file(const char *filename){
       Block3 *b = map[p.z][p.y][p.x];
       int w[4], t, n;
       if(!b)
-        b = my_alloc(1, sizeof(Block3));
+        b = ALLOCATE(1, Block3);
       sscanf(s, "%d:: type:%d h:%d walls:%d %d %d %d",
           &n, &t, &b->h,
           &w[0], &w[1], &w[2], &w[3]);
@@ -434,7 +434,7 @@ void keys_callback(int key, int action) {
         free(b);
         map[active_block_pos.z][active_block_pos.y][active_block_pos.x] = NULL;
       }else{
-        b = my_alloc(1, sizeof(Block3));
+        b = ALLOCATE(1, Block3);
         b->t = B_FLOOR;
         b->h = 0;
         b->parent = mk_v3i(-1, -1, -1);
@@ -638,8 +638,8 @@ void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z){
 void build_obj(Obj_model *model){
   int i, j;
   obj_verts_count = model->f_count * 3;
-  obj_verts = my_alloc(obj_verts_count * 3, sizeof(float));
-  obj_tex_coord = my_alloc(obj_verts_count * 2, sizeof(float));
+  obj_verts = ALLOCATE(obj_verts_count * 3, float);
+  obj_tex_coord = ALLOCATE(obj_verts_count * 2, float);
   for(i = 0; i < model->f_count; i++){
     Obj_triangle *t = model->faces + i;
     for(j = 0; j < 3; j++){
@@ -670,8 +670,8 @@ void build_map_array(void){
     free(map_verts);
   if(map_tex_coord)
     free(map_tex_coord);
-  map_verts = my_alloc(map_verts_count * 3, sizeof(float));
-  map_tex_coord = my_alloc(map_verts_count * 2, sizeof(float));
+  map_verts = ALLOCATE(map_verts_count * 3, float);
+  map_tex_coord = ALLOCATE(map_verts_count * 2, float);
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
     if(b && enabled_levels[p.z]){
@@ -697,7 +697,7 @@ void build_path_array(void){
   path_verts_count = get_path_lines_count() * 2;
   if(path_verts)
     free(path_verts);
-  path_verts = my_alloc(path_verts_count * 3, sizeof(float));
+  path_verts = ALLOCATE(path_verts_count * 3, float);
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
     if(b && enabled_levels[p.z] && b->parent.x != -1){
@@ -721,8 +721,8 @@ void build_walls_array(void){
     free(walls_verts);
   if(wall_tex_coord)
     free(wall_tex_coord);
-  walls_verts = my_alloc(walls_verts_count * 3, sizeof(float));
-  wall_tex_coord = my_alloc(walls_verts_count * 2, sizeof(float));
+  walls_verts = ALLOCATE(walls_verts_count * 3, float);
+  wall_tex_coord = ALLOCATE(walls_verts_count * 2, float);
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
     if(b && enabled_levels[p.z]){
@@ -787,7 +787,7 @@ int main(void){
     int x, y;
     for(y = 0; y < MAP_Y; y++){
       for(x = 0; x < MAP_X; x++){
-        map[0][y][x] = my_alloc(1, sizeof(Block3));
+        map[0][y][x] = ALLOCATE(1, Block3);
         map[0][y][x]->t = B_FLOOR;
       }
     }
