@@ -4,6 +4,9 @@
 #include <malloc.h>
 #include "bool.h"
 #include "list.h"
+#include "math.h"
+#include "mutant3d.h"
+#include "misc.h"
 
 /*Create in heap node that points to 'data' and return
   pointer to rhis node.*/
