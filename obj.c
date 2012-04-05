@@ -28,7 +28,7 @@ void obj_read(Obj_model *m, char *filename){
       m->n_count++;
     else if(buffer[0] == 'v' && buffer[1] == 't')
       m->t_count++;
-    else if(buffer[0] == 'f' && buffer[1] == ' ') 
+    else if(buffer[0] == 'f' && buffer[1] == ' ')
       m->f_count++;
   }
   rewind(file);

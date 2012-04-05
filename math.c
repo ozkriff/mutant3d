@@ -118,7 +118,7 @@ V2f v2f_rotate(V2f v, float angle){
   float theta = deg2rad(angle);
   float cs = (float)cos(theta);
   float sn = (float)sin(theta);
-  v2.x = v.x * cs - v.y * sn; 
+  v2.x = v.x * cs - v.y * sn;
   v2.y = v.x * sn + v.y * cs;
   return v2;
 }

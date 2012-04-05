@@ -31,13 +31,13 @@ bool show_clearence = false;
 #define BLOCK_SIZE 5.0f
 #define BLOCK_SPACE 0.0f
 
-GLfloat LightAmbient[4] = {0.1f, 0.1f, 0.1f, 0.2f}; 
-GLfloat LightDiffuse[4] = {0.5, 0.5, 0.5, 0.5}; 
+GLfloat LightAmbient[4] = {0.1f, 0.1f, 0.1f, 0.2f};
+GLfloat LightDiffuse[4] = {0.5, 0.5, 0.5, 0.5};
 GLfloat LightPosition[4] = {
   BLOCK_SIZE * (MAP_X / 2.0),
   BLOCK_SIZE * (MAP_Y / 2.0),
   BLOCK_SIZE * MAP_Z,
-  1.0};  
+  1.0};
 
 Block3 *map[MAP_Z][MAP_Y][MAP_X];
 
@@ -512,7 +512,7 @@ void main_loop(void){
     }
   }
 }
- 
+
 void init(void) {
   const int window_width = 700;
   const int window_height = 500;
@@ -541,8 +541,8 @@ void init(void) {
   glEnable(GL_AUTO_NORMAL);
   glEnable(GL_NORMALIZE);
   glShadeModel(GL_SMOOTH);
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE ); 
-  glEnable(GL_COLOR_MATERIAL); 
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+  glEnable(GL_COLOR_MATERIAL);
   /*glColorMaterial(GL_FRONT,GL_DIFFUSE);*/
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -552,7 +552,7 @@ void init(void) {
 #endif
   glfwSetKeyCallback(keys_callback);
   glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
-  glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);  
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
   glEnable(GL_LIGHT1);
 }
 

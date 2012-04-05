@@ -25,7 +25,7 @@ void md5_anim_debug_print(Md5_anim *a){
   }
   for(i = 0; i < a->num_joints; i++){
     Md5_base_frame_joint *j = a->base_frame + i;
-    printf("base_frame_joint (%f %f %f) (%f %f %f %f)\n", 
+    printf("base_frame_joint (%f %f %f) (%f %f %f %f)\n",
       j->pos.x, j->pos.y, j->pos.z,
       j->orient.x, j->orient.y, j->orient.z, j->orient.w);
   }
@@ -41,7 +41,7 @@ void md5_anim_debug_print(Md5_anim *a){
   }
   for(i = 0; i < a->num_joints; i++){
     Md5_joint *j = a->joints + i;
-    printf("joint %i (%f %f %f) (%f %f %f %f)\n", 
+    printf("joint %i (%f %f %f) (%f %f %f %f)\n",
       j->parent_index,
       j->pos.x, j->pos.y, j->pos.z,
       j->orient.x, j->orient.y, j->orient.z, j->orient.w);
@@ -109,11 +109,11 @@ void md5_model_debug_print(Md5_model *m){
 /*Compute real points from bones data.*/
 void md5_mesh_calc_points(Md5_mesh *m, Md5_joint *joints){
   int i;
-  for(i = 0; i < m->num_vertices; i++){ 
+  for(i = 0; i < m->num_vertices; i++){
     Md5_vertex *v = m->vertices + i; /*current vertex*/
-    V3f p = {0, 0, 0}; 
+    V3f p = {0, 0, 0};
     int k;
-    for(k = 0; k < v->weight_count; k++){ 
+    for(k = 0; k < v->weight_count; k++){
       Md5_weight *w = m->weights + (v->weight_index + k);
       Md5_joint  *j  = joints + w->joint_index;
       /*Transform weight.pos by bone with weight.*/
@@ -121,9 +121,9 @@ void md5_mesh_calc_points(Md5_mesh *m, Md5_joint *joints){
       p.x += p2.x * w->weight;
       p.y += p2.y * w->weight;
       p.z += p2.z * w->weight;
-    } 
+    }
     m->points[i] = p;
-  } 
+  }
 }
 
 void md5_model_compute(Md5_model *m, Md5_joint *joints){
@@ -194,7 +194,7 @@ void md5_read_mesh(FILE *f, Md5_mesh *m){
       t->index[2] = i2;
     }else if(strcmp_sp(s+1, "weight ")){
       Md5_weight *w;
-      int index; 
+      int index;
       int joint;
       float bias;
       V3f pos;
