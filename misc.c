@@ -4,6 +4,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 #include "bool.h"
 #include "math.h"
 #include "mutant3d.h"
@@ -11,8 +12,11 @@
 
 /*TODO maybu should add some checks later?*/
 void *my_alloc(int count, int size){
-  unsigned int u_count = (unsigned int)count;
-  unsigned int u_size = (unsigned int)size;
+  unsigned int u_count;
+  unsigned int u_size;
+  assert(count > 0 && size > 0);
+  u_count = (unsigned int)count;
+  u_size = (unsigned int)size;
   return calloc(u_count, u_size);
 }
 
@@ -32,6 +36,7 @@ bool strcmp_sp(const char *s1, const char *s2){
 
 char *my_strdup(const char *s){
   char *d;
+  assert(strlen(s) + 1 < 10000);
   d = ALLOCATE((int)strlen(s) + 1, char);
   if(d)
     strcpy(d, s);
@@ -129,6 +134,7 @@ V3i neib(V3i pos, Dir i){
 }
 
 void fixnum(int min, int max, int *n){
+  assert(n);
   if(*n < min)
     *n = min;
   if(*n > max)
@@ -136,6 +142,7 @@ void fixnum(int min, int max, int *n){
 }
 
 int rnd(int min, int max){
+  assert(min < max);
   if(max != min)
     return rand() % (max - min) + min;
   else
@@ -145,11 +152,18 @@ int rnd(int min, int max){
 /*TODO rename*/
 /*проверить, что остались блоки*/
 bool is_able_to_inc_v3i(V3i *pos){
-  return !(pos->x == MAP_X-1 && pos->y == MAP_Y-1 && pos->z == MAP_Z-1);
+  bool is_x_correct, is_y_correct, is_z_correct;
+  assert(pos);
+  assert(pos->x >= 0 && pos->y >= 0 && pos->z >= 0);
+  is_x_correct = pos->x != (MAP_X - 1);
+  is_y_correct = pos->y != (MAP_Y - 1);
+  is_z_correct = pos->z != (MAP_Z - 1);
+  return is_x_correct || is_y_correct || is_z_correct;
 }
 
 /*TODO rename*/
 void inc_v3i(V3i *pos){
+  assert(is_able_to_inc_v3i(pos));
   pos->x++;
   if(pos->x == MAP_X){
     pos->x = 0;

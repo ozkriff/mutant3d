@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <assert.h>
 #include <GL/glfw.h>
 #include "bool.h"
 #include "math.h"
@@ -122,10 +123,12 @@ void obj_debug_print(Obj_model *m){
 
 void obj_draw(GLuint tex_id, Obj_model *m){
   int i, j;
+  assert(m);
   glBindTexture(GL_TEXTURE_2D, tex_id);
   glBegin(GL_TRIANGLES);
   for(i = 0; i <= m->f_count; i++){
     Obj_triangle *t = m->faces + i;
+    assert(t);
     for(j = 0; j < 3; j++){
       int texture_id = t->t[j] - 1;
       int vertex_id = t->v[j] - 1;

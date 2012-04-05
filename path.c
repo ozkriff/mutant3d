@@ -1,6 +1,7 @@
 /*See LICENSE file for copyright and license details.*/
 
 #include <stdlib.h>
+#include <assert.h>
 #include "bool.h"
 #include "list.h"
 #include "math.h"
@@ -117,6 +118,7 @@ static void clean_map(void){
 
 static void try_to_push_neibors(V3i m){
   unsigned int i;
+  assert(inboard(m));
   for(i = 0; i < 8 * 3; i++){
     V3i neib_m = neib(m, i);
     if(inboard(neib_m))
@@ -125,6 +127,10 @@ static void try_to_push_neibors(V3i m){
 }
 
 void fill_map(V3i pos){
+  assert(inboard(pos));
+  assert(stack.count == 0);
+  if(!block(pos))
+    return;
   clean_map();
   push(pos, pos, 0); /*push start position*/
   while(stack.count > 0)
@@ -134,11 +140,13 @@ void fill_map(V3i pos){
 
 List get_path(V3i pos){
   List path = {NULL, NULL, 0};
+  assert(inboard(pos));
   while(block(pos)->cost != 0){
     push_node(&path, COPY_TO_HEAP(&pos, V3i));
     pos = block(pos)->parent;
   }
   /*Add start position.*/
   push_node(&path, COPY_TO_HEAP(&pos, V3i));
+  assert(stack.count == 0);
   return(path);
 }

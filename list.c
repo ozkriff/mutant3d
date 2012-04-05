@@ -2,6 +2,7 @@
 /*Double-linked list, stack, queue.*/
 
 #include <malloc.h>
+#include <assert.h>
 #include "bool.h"
 #include "list.h"
 #include "math.h"
@@ -21,6 +22,7 @@ Node *mk_node(void *data){
 /*If 'after' is NULL, then 'node' will be added at the head
   of the list, else it will be added following 'after'.*/
 void insert_node(List *list, Node *node, Node *after){
+  assert(list && node);
   if(after){
     node->next = after->next;
     node->prev = after;
@@ -39,6 +41,7 @@ void insert_node(List *list, Node *node, Node *after){
 
 /*Extructs node from list, returns pointer to this node.*/
 Node *extruct_node(List *list, Node *node){
+  assert(list && node);
   if(!node)
     return NULL;
   if(node->next)
@@ -55,7 +58,9 @@ Node *extruct_node(List *list, Node *node){
 
 /*Delete data and node.*/
 void delete_node(List *list, Node *node){
-  Node *tmp = extruct_node(list, node);
+  Node *tmp;
+  assert(list && node);
+  tmp = extruct_node(list, node);
   free(tmp->data);
   free(tmp);
 }
@@ -63,19 +68,24 @@ void delete_node(List *list, Node *node){
 /*Extruct node from list, delete node,
   return pointer to data.*/
 void *extruct_data(List *list, Node *node){
-  Node *tmp = extruct_node(list, node);
-  void *data = node->data;
+  Node *tmp;
+  void *data;
+  assert(list && node);
+  tmp = extruct_node(list, node);
+  data = node->data;
   free(tmp);
   return data;
 }
 
 void clear_list(List *l){
+  assert(l);
   while(l->count)
     delete_node(l, l->head);
 }
 
 Node *data2node(List l, void *data){
   Node *node;
+  assert(data);
   FOR_EACH_NODE(l, node)
     if(node->data == data)
       return node;

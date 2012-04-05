@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <GL/glfw.h>
+#include <assert.h>
 #include "bool.h"
 #include "list.h"
 #include "math.h"
@@ -76,10 +77,13 @@ bool inboard(V3i p){
 }
 
 Block3 *block(V3i p){
+  assert(inboard(p));
   return map[p.z][p.y][p.x];
 }
 
 Block3 *block_2(int x, int y, int z){
+  assert(x >= 0 && y >= 0 && z >= 0
+      && x < MAP_X && y < MAP_Y && z < MAP_Z);
   return map[z][y][x];
 }
 
@@ -153,6 +157,8 @@ bool check_xxx(V3i orig_pos, V3i pos, int height){
 int calc_block_clearence(V3i p, int max_size){
   int i, j;
   int h = MAX_HEIGHT_DIFF;
+  assert(inboard(p));
+  assert(max_size >= 0);
   if(block(p) && block(p)->t != B_FLOOR)
     return 0;
   for(i = 1; i < max_size; i++){
@@ -180,6 +186,7 @@ int calc_block_clearence(V3i p, int max_size){
 
 void calc_map_clearence(int max_size){
   V3i p = {0, 0, 0};
+  assert(max_size > 0);
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
     if(b)
@@ -195,6 +202,7 @@ void shut_down(int return_code){
 
 /*TODO*/
 void set_block_color(Block3 *b){
+  assert(b);
   if(!show_clearence){
     glColor3f(0.8f, 0.8f, 0.8f);
   }else{
@@ -621,7 +629,11 @@ int get_path_lines_count(void){
 }
 
 void set_xy(float *coords, int n, int i, int vi, float x, float y){
-  float *coord = coords + (i * n * 2) + (2 * vi);
+  float *coord;
+  assert(n == 2 || n == 3 || n == 4);
+  assert(vi >= 0 && vi <= n);
+  assert(i >= 0);
+  coord = coords + (i * n * 2) + (2 * vi);
   *(coord + 0) = x;
   *(coord + 1) = y;
 }
@@ -629,7 +641,11 @@ void set_xy(float *coords, int n, int i, int vi, float x, float y){
 /*if(quads) n=4; if(tris) n=3*/
 /* i - polygon number, vi - vertex number*/
 void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z){
-  float *vertex = verts + (i * n * 3) + (3 * vi);
+  float *vertex;
+  assert(n == 2 || n == 3 || n == 4);
+  assert(vi >= 0 && vi <= n);
+  assert(i >= 0);
+  vertex = verts + (i * n * 3) + (3 * vi);
   *(vertex + 0) = x;
   *(vertex + 1) = y;
   *(vertex + 2) = z;
@@ -695,6 +711,7 @@ void build_path_array(void){
   V3i p = {0, 0, 0};
   int i = 0; /*block index*/
   path_verts_count = get_path_lines_count() * 2;
+  assert(path_verts_count > 0);
   if(path_verts)
     free(path_verts);
   path_verts = ALLOCATE(path_verts_count * 3, float);
@@ -717,6 +734,7 @@ void build_walls_array(void){
   V3i p = {0, 0, 0};
   int i = 0; /*block index*/
   walls_verts_count = get_walls_count() * 4;
+  assert(walls_verts_count > 0);
   if(walls_verts)
     free(walls_verts);
   if(wall_tex_coord)

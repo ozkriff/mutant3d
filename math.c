@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <math.h>
 #include "bool.h"
 #include "math.h"
@@ -124,7 +125,9 @@ V2f v2f_rotate(V2f v, float angle){
 }
 
 void quat_renormalize(Quat *q){
-  double len = 1.0 - q->x*q->x - q->y*q->y - q->z*q->z;
+  double len;
+  assert(q);
+  len = 1.0 - q->x*q->x - q->y*q->y - q->z*q->z;
   if(len < 1e-8)
     q->w = 0;
   else

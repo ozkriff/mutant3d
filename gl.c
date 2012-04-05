@@ -1,6 +1,7 @@
 /*See LICENSE file for copyright and license details.*/
 
 #include "GL/glfw.h"
+#include <assert.h>
 #include "bool.h"
 #include "math.h"
 #include "mutant3d.h"
@@ -29,7 +30,9 @@ void win2world(int x, int y, V3f *p){
   GLdouble modelview[16];
   GLfloat vx, vy, vz;
   GLdouble wx, wy, wz;
-  glGetIntegerv(GL_VIEWPORT,viewport);
+  assert(p);
+  assert(x >= 0 && y >= 0); /*TODO <= SCR_WIDTH*/
+  glGetIntegerv(GL_VIEWPORT, viewport);
   glGetDoublev(GL_PROJECTION_MATRIX, projection);
   glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
   vx = (float)x;
