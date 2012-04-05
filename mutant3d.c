@@ -244,16 +244,16 @@ void draw_active_block(V3i p){
   float y = (float)p.y * (BLOCK_SIZE + BLOCK_SPACE);
   glColor3f(0.0f, 0.0f, 1.0f);
   glBegin(GL_LINE_STRIP);
-  glVertex3f(x, y, -n);
-  glVertex3f(x, y, (float)(MAP_Z - 1) * BLOCK_SIZE + n);
+  glVertex3f(x, y, 0);
+  glVertex3f(x, y, (float)(MAP_Z - 1) * (BLOCK_SIZE*2) + 4*n);
   glEnd();
   glTranslatef(x, y,
       (float)p.z * BLOCK_SIZE * 2);
   glBegin(GL_LINES);
-  glVertex3f(-n, -n, -n); glVertex3f(-n, -n, +n);
-  glVertex3f(+n, -n, -n); glVertex3f(+n, -n, +n);
-  glVertex3f(+n, +n, -n); glVertex3f(+n, +n, +n);
-  glVertex3f(-n, +n, -n); glVertex3f(-n, +n, +n);
+  glVertex3f(-n, -n, 0); glVertex3f(-n, -n, n*4);
+  glVertex3f(+n, -n, 0); glVertex3f(+n, -n, n*4);
+  glVertex3f(+n, +n, 0); glVertex3f(+n, +n, n*4);
+  glVertex3f(-n, +n, 0); glVertex3f(-n, +n, n*4);
   glEnd();
 }
 
@@ -733,10 +733,10 @@ void build_map_array(void){
     if(b && enabled_levels[p.z]){
       float n = BLOCK_SIZE / 2.0;
       V3f pos = v3i_to_v3f(p);
-      set_xyz(map_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z - n);
-      set_xyz(map_verts, 4, i, 1, pos.x + n, pos.y - n, pos.z - n);
-      set_xyz(map_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z - n);
-      set_xyz(map_verts, 4, i, 3, pos.x - n, pos.y + n, pos.z - n);
+      set_xyz(map_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z);
+      set_xyz(map_verts, 4, i, 1, pos.x + n, pos.y - n, pos.z);
+      set_xyz(map_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z);
+      set_xyz(map_verts, 4, i, 3, pos.x - n, pos.y + n, pos.z);
       set_xy(map_tex_coord, 4, i, 0, 0.0f, 0.0f);
       set_xy(map_tex_coord, 4, i, 1, 1.0f, 0.0f);
       set_xy(map_tex_coord, 4, i, 2, 1.0f, 1.0f);
@@ -758,11 +758,10 @@ void build_path_array(void){
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
     if(b && enabled_levels[p.z] && b->parent.x != -1){
-      float n = BLOCK_SIZE / 2.0;
       V3f pos1 = v3i_to_v3f(p);
       V3f pos2 = v3i_to_v3f(b->parent);
-      set_xyz(path_verts, 2, i, 0, pos1.x, pos1.y, pos1.z - n + 0.1f);
-      set_xyz(path_verts, 2, i, 1, pos2.x, pos2.y, pos2.z - n + 0.1f);
+      set_xyz(path_verts, 2, i, 0, pos1.x, pos1.y, pos1.z + 0.1f);
+      set_xyz(path_verts, 2, i, 1, pos2.x, pos2.y, pos2.z + 0.1f);
       i++;
     }
     inc_v3i(&p);
@@ -787,10 +786,10 @@ void build_walls_array(void){
       float n = BLOCK_SIZE / 2.0;
       V3f pos = v3i_to_v3f(p);
       if(b->walls[0]){
-        set_xyz(walls_verts, 4, i, 0, pos.x + n, pos.y - n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 1, pos.x + n, pos.y + n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z + 3*n);
-        set_xyz(walls_verts, 4, i, 3, pos.x + n, pos.y - n, pos.z + 3*n);
+        set_xyz(walls_verts, 4, i, 0, pos.x + n, pos.y - n, pos.z);
+        set_xyz(walls_verts, 4, i, 1, pos.x + n, pos.y + n, pos.z);
+        set_xyz(walls_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z + 4*n);
+        set_xyz(walls_verts, 4, i, 3, pos.x + n, pos.y - n, pos.z + 4*n);
         set_xy(wall_tex_coord, 4, i, 0, 0.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 1, 1.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 2, 1.0f, 1.0f);
@@ -798,10 +797,10 @@ void build_walls_array(void){
         i++;
       }
       if(b->walls[1]){
-        set_xyz(walls_verts, 4, i, 0, pos.x - n, pos.y + n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 1, pos.x + n, pos.y + n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z + 3*n);
-        set_xyz(walls_verts, 4, i, 3, pos.x - n, pos.y + n, pos.z + 3*n);
+        set_xyz(walls_verts, 4, i, 0, pos.x - n, pos.y + n, pos.z);
+        set_xyz(walls_verts, 4, i, 1, pos.x + n, pos.y + n, pos.z);
+        set_xyz(walls_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z + 4*n);
+        set_xyz(walls_verts, 4, i, 3, pos.x - n, pos.y + n, pos.z + 4*n);
         set_xy(wall_tex_coord, 4, i, 0, 0.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 1, 1.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 2, 1.0f, 1.0f);
@@ -809,10 +808,10 @@ void build_walls_array(void){
         i++;
       }
       if(b->walls[2]){
-        set_xyz(walls_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 1, pos.x - n, pos.y + n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 2, pos.x - n, pos.y + n, pos.z + 3*n);
-        set_xyz(walls_verts, 4, i, 3, pos.x - n, pos.y - n, pos.z + 3*n);
+        set_xyz(walls_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z);
+        set_xyz(walls_verts, 4, i, 1, pos.x - n, pos.y + n, pos.z);
+        set_xyz(walls_verts, 4, i, 2, pos.x - n, pos.y + n, pos.z + 4*n);
+        set_xyz(walls_verts, 4, i, 3, pos.x - n, pos.y - n, pos.z + 4*n);
         set_xy(wall_tex_coord, 4, i, 0, 0.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 1, 1.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 2, 1.0f, 1.0f);
@@ -820,10 +819,10 @@ void build_walls_array(void){
         i++;
       }
       if(b->walls[3]){
-        set_xyz(walls_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 1, pos.x + n, pos.y - n, pos.z - n);
-        set_xyz(walls_verts, 4, i, 2, pos.x + n, pos.y - n, pos.z + 3*n);
-        set_xyz(walls_verts, 4, i, 3, pos.x - n, pos.y - n, pos.z + 3*n);
+        set_xyz(walls_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z);
+        set_xyz(walls_verts, 4, i, 1, pos.x + n, pos.y - n, pos.z);
+        set_xyz(walls_verts, 4, i, 2, pos.x + n, pos.y - n, pos.z + 4*n);
+        set_xyz(walls_verts, 4, i, 3, pos.x - n, pos.y - n, pos.z + 4*n);
         set_xy(wall_tex_coord, 4, i, 0, 0.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 1, 1.0f, 0.0f);
         set_xy(wall_tex_coord, 4, i, 2, 1.0f, 1.0f);
