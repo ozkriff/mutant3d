@@ -23,7 +23,7 @@ static void push(V3i m, V3i parent, int newcost) {
 
 static V3i pop(void){
   Node *tmp = pop_node(&stack);
-  V3i m = *(V3i*)(tmp->data);
+  V3i m = *(V3i*)tmp->data;
   free(tmp->data);
   free(tmp);
   return(m);
