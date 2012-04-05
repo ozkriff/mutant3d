@@ -1,7 +1,7 @@
 /*See LICENSE file for copyright and license details.*/
 
 #include <stdlib.h>
-#include <malloc.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>

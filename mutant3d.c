@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <GL/glfw.h>
+#include <time.h>
 #include <assert.h>
 #include "bool.h"
 #include "list.h"

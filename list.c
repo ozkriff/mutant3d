@@ -1,7 +1,7 @@
 /*See LICENSE file for copyright and license details.*/
 /*Double-linked list, stack, queue.*/
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "bool.h"
 #include "list.h"
