@@ -238,21 +238,17 @@ void set_camera(void){
   glTranslatef(map_pos.x, map_pos.y, 0);
 }
 
-void draw_active_block(void){
+void draw_active_block(V3i p){
   float n = BLOCK_SIZE / 2.0f;
-  float x = (float)active_block_pos.x * (BLOCK_SIZE + BLOCK_SPACE);
-  float y = (float)active_block_pos.y * (BLOCK_SIZE + BLOCK_SPACE);
+  float x = (float)p.x * (BLOCK_SIZE + BLOCK_SPACE);
+  float y = (float)p.y * (BLOCK_SIZE + BLOCK_SPACE);
   glColor3f(0.0f, 0.0f, 1.0f);
   glBegin(GL_LINE_STRIP);
   glVertex3f(x, y, -n);
   glVertex3f(x, y, (float)(MAP_Z - 1) * BLOCK_SIZE + n);
   glEnd();
   glTranslatef(x, y,
-#if 0
-      active_block_pos.z * BLOCK_SIZE + (BLOCK_SIZE / (float)BLOCK_HEIGHT) * b->h);
-#else
-      (float)(active_block_pos.z) * BLOCK_SIZE);
-#endif
+      (float)p.z * BLOCK_SIZE * 2);
   glBegin(GL_LINES);
   glVertex3f(-n, -n, -n); glVertex3f(-n, -n, +n);
   glVertex3f(+n, -n, -n); glVertex3f(+n, -n, +n);
@@ -312,7 +308,7 @@ void draw(void){
   glDisableClientState(GL_VERTEX_ARRAY);
   {
     glLineWidth(2.0);
-    draw_active_block();
+    draw_active_block(active_block_pos);
     glLineWidth(1.0);
   }
   if(0){
