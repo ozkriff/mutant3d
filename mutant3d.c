@@ -568,7 +568,7 @@ void md5_init(void){
 }
 
 void obj_init(void){
-  obj_read (&obj_m, "data/obj_test/model.obj");
+  obj_read(&obj_m, "data/obj_test/model.obj");
   if(!load_texture("data/obj_test/test.tga", &obj_tex))
     die("blah blah blah");
 }
