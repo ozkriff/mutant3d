@@ -15,7 +15,7 @@ Node *mk_node(void *data){
   n->data = data;
   n->next = NULL;
   n->prev = NULL;
-  return(n); 
+  return n;
 }
 
 /*If 'after' is NULL, then 'node' will be added at the head
@@ -40,7 +40,7 @@ void insert_node(List *list, Node *node, Node *after){
 /*Extructs node from list, returns pointer to this node.*/
 Node *extruct_node(List *list, Node *node){
   if(!node)
-    return(NULL);
+    return NULL;
   if(node->next)
     node->next->prev = node->prev;
   else
@@ -50,7 +50,7 @@ Node *extruct_node(List *list, Node *node){
   else
     list->head = node->next;
   list->count--;
-  return(node);
+  return node;
 }
 
 /*Delete data and node.*/
@@ -66,7 +66,7 @@ void *extruct_data(List *list, Node *node){
   Node *tmp = extruct_node(list, node);
   void *data = node->data;
   free(tmp);
-  return(data);
+  return data;
 }
 
 void clear_list(List *l){
@@ -78,6 +78,6 @@ Node *data2node(List l, void *data){
   Node *node;
   FOR_EACH_NODE(l, node)
     if(node->data == data)
-      return(node);
-  return(NULL);
+      return node;
+  return NULL;
 }
