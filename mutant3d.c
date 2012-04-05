@@ -701,10 +701,10 @@ void build_obj(Obj_model *model){
   obj_verts = ALLOCATE(obj_verts_count * 3, float);
   obj_tex_coord = ALLOCATE(obj_verts_count * 2, float);
   for(i = 0; i < model->f_count; i++){
-    Obj_triangle *t = model->faces + i;
+    Obj_triangle *tri = model->faces + i;
     for(j = 0; j < 3; j++){
-      int vert_id = t->v[j] - 1;
-      int tex_id = t->t[j] - 1;
+      int vert_id = tri->v[j] - 1;
+      int tex_id = tri->t[j] - 1;
       V3f *vert = model->vertexes + vert_id;
       V2f *tex = model->text_coords + tex_id;
       set_xyz(obj_verts, 3, i, j, vert->x, vert->y, vert->z);
