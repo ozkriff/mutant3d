@@ -46,7 +46,7 @@ void obj_read(Obj_model *m, char *filename){
              &v->x, &v->y, &v->z);
       if(items != 3)
         die("v: items != 3\n");
-#if 1
+#if 0
 #define resize_coefficient (7.0f) /*TODO: remove later*/
       m->vertexes[v_i].x *= resize_coefficient;
       m->vertexes[v_i].y *= resize_coefficient;

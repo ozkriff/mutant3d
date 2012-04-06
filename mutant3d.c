@@ -23,7 +23,7 @@
 float rotate_x = 45.0f;
 float rotate_z = 180.0f;
 const float rotations_per_tick = 1.5;
-V3f map_pos = {220, 220, 0};
+V3f map_pos = {0, 0, 0};
 float zoom = 100.0f;
 bool done = false;
 V3i active_block_pos = {0, 0, 0};
@@ -33,7 +33,7 @@ bool show_map = true;
 bool show_map_outline = false;
 bool show_clearence = false;
 
-#define BLOCK_SIZE 5.0f
+#define BLOCK_SIZE 1.0f
 #define BLOCK_SPACE 0.0f
 
 GLfloat LightAmbient[4] = {0.1f, 0.1f, 0.1f, 0.2f};
@@ -287,8 +287,8 @@ void draw(void){
     glScalef(0.2f, 0.2f, 0.2f);
     for(i = 0; i < 25; i++){
       if(i != 0 && i % 5 == 0)
-        glTranslatef(50 * 5, 60, 0);
-      glTranslatef(-50, 0, 0);
+        glTranslatef(4 * 5, 0, 8);
+      glTranslatef(-4, 0, 0);
       glTexCoordPointer(2, GL_FLOAT, 0, obj_tex_coord);
       glVertexPointer(3, GL_FLOAT, 0, obj_verts);
       glDrawArrays(GL_TRIANGLES, 0, obj_verts_count);
