@@ -34,7 +34,6 @@ bool show_map_outline = false;
 bool show_clearence = false;
 
 #define BLOCK_SIZE 1.0f
-#define BLOCK_SPACE 0.0f
 
 GLfloat LightAmbient[4] = {0.1f, 0.1f, 0.1f, 0.2f};
 GLfloat LightDiffuse[4] = {0.5, 0.5, 0.5, 0.5};
@@ -234,8 +233,8 @@ void set_camera(void){
 
 void draw_active_block(V3i p){
   float n = BLOCK_SIZE / 2.0f;
-  float x = (float)p.x * (BLOCK_SIZE + BLOCK_SPACE);
-  float y = (float)p.y * (BLOCK_SIZE + BLOCK_SPACE);
+  float x = (float)p.x * BLOCK_SIZE;
+  float y = (float)p.y * BLOCK_SIZE;
   glColor3f(0.0f, 0.0f, 1.0f);
   glBegin(GL_LINE_STRIP);
   glVertex3f(x, y, 0);
@@ -709,8 +708,8 @@ V3f v3i_to_v3f(V3i i){
   Block3 *b;
   assert(inboard(i));
   b = block(i);
-  f.x = (float)i.x * (BLOCK_SIZE + BLOCK_SPACE);
-  f.y = (float)i.y * (BLOCK_SIZE + BLOCK_SPACE),
+  f.x = (float)i.x * BLOCK_SIZE;
+  f.y = (float)i.y * BLOCK_SIZE;
   f.z = (float)i.z * (BLOCK_SIZE*2) + ((BLOCK_SIZE*2) / BLOCK_HEIGHT) * (float)b->h;
   return f;
 }
