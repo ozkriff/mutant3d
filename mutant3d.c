@@ -777,6 +777,8 @@ void build_walls_array(void){
   V3i p = {0, 0, 0};
   int i = 0; /*block index*/
   walls_verts_count = get_walls_count() * 4;
+  if(walls_verts_count == 0)
+    return;
   assert(walls_verts_count > 0);
   if(walls_verts)
     free(walls_verts);
