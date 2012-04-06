@@ -283,6 +283,7 @@ void draw(void){
     int i;
     glBindTexture(GL_TEXTURE_2D, obj_tex);
     glPushMatrix();
+    glRotatef(90, 1, 0, 0);
     glColor3f(0, 0, 1);
     glScalef(0.2f, 0.2f, 0.2f);
     for(i = 0; i < 25; i++){
