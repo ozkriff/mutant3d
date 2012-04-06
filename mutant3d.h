@@ -21,6 +21,7 @@ typedef struct {
   int clearence;
   bool path;
   bool walls[4];
+  int heights[4];
   V3i parent;
   int cost;
 } Block3;

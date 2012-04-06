@@ -28,10 +28,14 @@ float zoom = 100.0f;
 bool done = false;
 V3i active_block_pos = {0, 0, 0};
 
-bool show_path = true;
-bool show_map = true;
-bool show_map_outline = false;
-bool show_clearence = false;
+typedef enum {
+  M_NORMAL,
+  M_SET_WALLS,
+  M_SET_HEIGHTS,
+  M_COUNT
+} Mode;
+
+Mode mode = M_NORMAL;
 
 #define BLOCK_SIZE 1.0f
 
@@ -252,7 +256,7 @@ void draw(void){
     glVertexPointer(3, GL_FLOAT, 0, walls_verts);
     glDrawArrays(GL_QUADS, 0, walls_verts_count);
   }
-  {
+  if(0){
     int i;
     glBindTexture(GL_TEXTURE_2D, obj_tex);
     glPushMatrix();
@@ -298,14 +302,18 @@ void print_block(FILE *f, Block3 *b, int i){
     fprintf(f, ".");
     return;
   }
-  fprintf(f, "%d:: type:%d h:%d walls:%d %d %d %d",
+  fprintf(f, "%d:: type:%d h:%d walls:(%d %d %d %d) h:(%d %d %d %d)",
       i,
       b->t,
       b->h,
       (int)b->walls[0],
       (int)b->walls[1],
       (int)b->walls[2],
-      (int)b->walls[3]);
+      (int)b->walls[3],
+      b->heights[0],
+      b->heights[1],
+      b->heights[2],
+      b->heights[3]);
 }
 
 void map_to_file(const char *filename){
@@ -341,17 +349,22 @@ void map_from_file(const char *filename){
 #endif
     }else{
       Block3 *b = map[p.z][p.y][p.x];
-      int w[4], t, n;
+      int h[4], w[4], t, n;
       if(!b)
         b = ALLOCATE(1, Block3);
-      sscanf(s, "%d:: type:%d h:%d walls:%d %d %d %d",
+      sscanf(s, "%d:: type:%d h:%d walls:(%d %d %d %d) h:(%d %d %d %d)",
           &n, &t, &b->h,
-          &w[0], &w[1], &w[2], &w[3]);
+          &w[0], &w[1], &w[2], &w[3],
+          &h[0], &h[1], &h[2], &h[3]);
       b->t = (Block_type_id)t;
       b->walls[0] = (bool)w[0];
       b->walls[1] = (bool)w[1];
       b->walls[2] = (bool)w[2];
       b->walls[3] = (bool)w[3];
+      b->heights[0] = h[0];
+      b->heights[1] = h[1];
+      b->heights[2] = h[2];
+      b->heights[3] = h[3];
       b->parent.x = -1;
       map[p.z][p.y][p.x] = b;
     }
@@ -365,7 +378,7 @@ void keys_callback(SDL_KeyboardEvent e) {
   Uint8 *state = SDL_GetKeyboardState(NULL);
   if(e.type != SDL_KEYDOWN)
     return;
-  if(!state[SDL_SCANCODE_LCTRL] && !state[SDL_SCANCODE_RCTRL]){
+  if(mode == M_NORMAL){
     if(key >= '1' && key <= '9'){
       int n = key - '1';
       enabled_levels[n] = !enabled_levels[n];
@@ -386,15 +399,10 @@ void keys_callback(SDL_KeyboardEvent e) {
     active_block_pos.z--;
   else if(key == SDLK_u && active_block_pos.z < MAP_Z - 1)
     active_block_pos.z++;
-  else if(key == SDLK_p){
-    show_path = !show_path;
-    build_map_array();
-  }else if(key == SDLK_m){
-    show_map = !show_map;
-    build_map_array();
-  }else if(key == SDLK_q){
-    show_map_outline = !show_map_outline;
-    build_map_array();
+  else if(key == SDLK_m){
+    mode++;
+    if(mode == M_COUNT)
+      mode = M_NORMAL;
   }else if(key == SDLK_x){
     fill_map(active_block_pos);
     build_path_array();
@@ -404,13 +412,9 @@ void keys_callback(SDL_KeyboardEvent e) {
     map_from_file("out.map");
     build_map_array();
   }
-  else if(key == SDLK_c){
-    show_clearence = !show_clearence;
-    build_map_array();
-  }
   {
     Block3 *b = block(active_block_pos);
-    if(key == SDLK_PLUS && b){
+    if(key == SDLK_EQUALS && b){
       b->h++;
       build_map_array();
     }else if(key == SDLK_MINUS && b){
@@ -431,7 +435,7 @@ void keys_callback(SDL_KeyboardEvent e) {
       build_map_array();
     }
   }
-  if(state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]){
+  if(mode == M_SET_WALLS){
     Block3 *b = block(active_block_pos);
     if(b){
       bool *w = b->walls;
@@ -440,6 +444,16 @@ void keys_callback(SDL_KeyboardEvent e) {
       if(key == '3') w[2] = (w[2]) ? 0 : 1;
       if(key == '4') w[3] = (w[3]) ? 0 : 1;
       build_walls_array();
+    }
+  } else if(mode == M_SET_HEIGHTS){
+    Block3 *b = block(active_block_pos);
+    if(b){
+      int *h = b->heights;
+      if(key == '1') h[0] = (h[0]) ? 0 : 1;
+      if(key == '2') h[1] = (h[1]) ? 0 : 1;
+      if(key == '3') h[2] = (h[2]) ? 0 : 1;
+      if(key == '4') h[3] = (h[3]) ? 0 : 1;
+      build_map_array();
     }
   }
 }
@@ -707,12 +721,14 @@ void build_map_array(void){
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
     if(b && enabled_levels[p.z]){
+      int *h = b->heights;
       float n = BLOCK_SIZE / 2.0;
+      float n2 = (BLOCK_HEIGHT / 32.0f) * 4;
       V3f pos = v3i_to_v3f(p);
-      set_xyz(map_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z);
-      set_xyz(map_verts, 4, i, 1, pos.x + n, pos.y - n, pos.z);
-      set_xyz(map_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z);
-      set_xyz(map_verts, 4, i, 3, pos.x - n, pos.y + n, pos.z);
+      set_xyz(map_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z + (h[0] ? n2 : 0));
+      set_xyz(map_verts, 4, i, 1, pos.x + n, pos.y - n, pos.z + (h[1] ? n2 : 0));
+      set_xyz(map_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z + (h[2] ? n2 : 0));
+      set_xyz(map_verts, 4, i, 3, pos.x - n, pos.y + n, pos.z + (h[3] ? n2 : 0));
       set_xy(map_tex_coord, 4, i, 0, 0.0f, 0.0f);
       set_xy(map_tex_coord, 4, i, 1, 1.0f, 0.0f);
       set_xy(map_tex_coord, 4, i, 2, 1.0f, 1.0f);
