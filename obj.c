@@ -20,7 +20,7 @@ void obj_read(Obj_model *m, char *filename){
   int f_i = 0;
   file = fopen(filename, "r");
   if(!file)
-    die("can't find file: %s", filename);
+    die("obj_read(): can't find file: %s", filename);
   while(fgets(buffer, 100, file)){
     if(buffer[0] == 'v' && buffer[1] == ' ')
       m->v_count++;
