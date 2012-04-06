@@ -753,6 +753,8 @@ void build_path_array(void){
   V3i p = {0, 0, 0};
   int i = 0; /*block index*/
   path_verts_count = get_path_lines_count() * 2;
+  if(path_verts_count == 0)
+    return;
   assert(path_verts_count > 0);
   if(path_verts)
     free(path_verts);
