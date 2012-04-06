@@ -200,26 +200,6 @@ void shut_down(int return_code){
   exit(return_code);
 }
 
-/*TODO*/
-void set_block_color(Block3 *b){
-  assert(b);
-  if(!show_clearence){
-    glColor3f(0.8f, 0.8f, 0.8f);
-  }else{
-    switch(b->clearence){
-      case 0: glColor3f(1.0f, 0.0f, 0.0f); break;
-      case 1: glColor3f(0.0f, 0.9f, 0.0f); break;
-      case 2: glColor3f(0.0f, 0.7f, 0.0f); break;
-      case 3: glColor3f(0.0f, 0.5f, 0.0f); break;
-      case 4: glColor3f(0.0f, 0.3f, 0.0f); break;
-      case 5: glColor3f(0.0f, 0.2f, 0.0f); break;
-      case 6: glColor3f(0.0f, 0.1f, 0.0f); break;
-      default:
-        die("12424312 die");
-    }
-  }
-}
-
 void set_camera(void){
   glTranslatef(0, 0, -zoom);
   glRotatef(rotate_x, -1, 0, 0);
