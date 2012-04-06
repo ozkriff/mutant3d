@@ -88,12 +88,6 @@ Block3 *block(V3i p){
   return map[p.z][p.y][p.x];
 }
 
-Block3 *block_2(int x, int y, int z){
-  assert(x >= 0 && y >= 0 && z >= 0
-      && x < MAP_X && y < MAP_Y && z < MAP_Z);
-  return map[z][y][x];
-}
-
 /*TODO check if unit can stand here (enough vertical space)*/
 bool is_block_walkable(V3i pos){
   Block3 *b;
