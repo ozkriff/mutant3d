@@ -710,12 +710,14 @@ void build_obj(Obj_model *model){
 }
 
 V3f v3i_to_v3f(V3i i){
-   V3f f;
-   Block3 *b = block(i);
-   f.x = (float)i.x * (BLOCK_SIZE + BLOCK_SPACE);
-   f.y = (float)i.y * (BLOCK_SIZE + BLOCK_SPACE),
-   f.z = (float)i.z * (BLOCK_SIZE*2) + ((BLOCK_SIZE*2) / BLOCK_HEIGHT) * (float)b->h;
-   return f;
+  V3f f;
+  Block3 *b;
+  assert(inboard(i));
+  b = block(i);
+  f.x = (float)i.x * (BLOCK_SIZE + BLOCK_SPACE);
+  f.y = (float)i.y * (BLOCK_SIZE + BLOCK_SPACE),
+  f.z = (float)i.z * (BLOCK_SIZE*2) + ((BLOCK_SIZE*2) / BLOCK_HEIGHT) * (float)b->h;
+  return f;
 }
 
 void build_map_array(void){
