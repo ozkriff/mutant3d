@@ -51,8 +51,7 @@ void die(const char *errstr, ...){
 }
 
 /*TODO: rename me*/
-void*
-copy2heap(void *data, int size){
+void* copy2heap(void *data, int size){
   void *tmp = my_alloc(1, size);
   memcpy(tmp, data, (unsigned int)size);
   return tmp;
