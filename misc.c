@@ -10,7 +10,6 @@
 #include "mutant3d.h"
 #include "misc.h"
 
-/*TODO maybu should add some checks later?*/
 void *my_alloc(int count, int size){
   unsigned int u_count;
   unsigned int u_size;
