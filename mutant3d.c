@@ -50,10 +50,12 @@ GLfloat LightPosition[4] = {
 Block3 *map[MAP_Z][MAP_Y][MAP_X];
 
 float *map_verts = NULL; /*ground*/
+float *pick_verts = NULL;
 float *walls_verts = NULL;
 float *obj_verts = NULL;
 float *path_verts = NULL;
 int map_verts_count = 0;
+int pick_verts_count = 0;
 int walls_verts_count = 0;
 int obj_verts_count = 0;
 int path_verts_count = 0;
@@ -61,6 +63,8 @@ int path_verts_count = 0;
 float *map_tex_coord = NULL;
 float *wall_tex_coord = NULL;
 float *obj_tex_coord = NULL;
+
+GLubyte *pick_colors = NULL;
 
 bool enabled_levels[20] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
@@ -82,6 +86,8 @@ V2i mouse_pos = {0, 0};
 void build_map_array(void);
 void build_walls_array(void);
 void build_path_array(void);
+bool pick_block(V3i *block);
+void build_picking_blocks_array(void);
 
 bool inboard(V3i p){
   return p.x >= 0 && p.y >= 0 && p.z >= 0
@@ -397,11 +403,13 @@ void keys_callback(SDL_KeyboardEvent e) {
     active_block_pos.y--;
   else if(state[SDL_SCANCODE_L] && active_block_pos.x < MAP_X - 1)
     active_block_pos.x++;
-  else if(key == SDLK_d && active_block_pos.z > 0)
+  else if(key == SDLK_d && active_block_pos.z > 0){
     active_block_pos.z--;
-  else if(key == SDLK_u && active_block_pos.z < MAP_Z - 1)
+    build_picking_blocks_array();
+  }else if(key == SDLK_u && active_block_pos.z < MAP_Z - 1){
     active_block_pos.z++;
-  else if(key == SDLK_m){
+    build_picking_blocks_array();
+  }else if(key == SDLK_m){
     mode++;
     if(mode == M_COUNT)
       mode = M_NORMAL;
@@ -545,10 +553,19 @@ void events(void){
   }
 }
 
+void draw_for_picking(void); /* TODO remove */
+
 void main_loop(void){
   while(!done) {
     events();
     keys();
+    {
+      glClearColor(0.0, 0.0, 0.0, 1.0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      draw_for_picking();
+      pick_block(&active_block_pos);
+    }
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw();
     SDL_GL_SwapWindow(win);
@@ -684,6 +701,18 @@ void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z){
   *(vertex + 0) = x;
   *(vertex + 1) = y;
   *(vertex + 2) = z;
+}
+
+/* TODO rename arguments */
+void set_rgb(GLubyte *colors, int n, int i, int vi, GLubyte r, GLubyte g, GLubyte b){
+  GLubyte *color;
+  assert(n == 2 || n == 3 || n == 4);
+  assert(vi >= 0 && vi <= n);
+  assert(i >= 0);
+  color = colors + (i * n * 3) + (3 * vi);
+  color[0] = r;
+  color[1] = g;
+  color[2] = b;
 }
 
 void build_obj(Obj_model *model){
@@ -837,6 +866,66 @@ void build_walls_array(void){
   }
 }
 
+void build_picking_blocks_array(void){
+  V3i p = {0, 0, 0};
+  int i = 0; /*block index*/
+  pick_verts_count = MAP_X * MAP_Y * 4;
+  if(pick_verts)
+    free(pick_verts);
+  if(pick_colors)
+    free(pick_colors);
+  pick_verts = ALLOCATE(pick_verts_count * 3, float);
+  pick_colors = ALLOCATE(pick_verts_count * 3, GLubyte);
+  for(p.y = 0; p.y < MAP_Y; p.y++){
+    for(p.x = 0; p.x < MAP_X; p.x++){
+      float n = BLOCK_SIZE / 2.0;
+      V3f pos;
+      pos.x = BLOCK_SIZE * (float)p.x;
+      pos.y = BLOCK_SIZE * (float)p.y;
+      pos.z = BLOCK_SIZE * 2 * (float)active_block_pos.z;
+      set_xyz(pick_verts, 4, i, 0, pos.x - n, pos.y - n, pos.z);
+      set_xyz(pick_verts, 4, i, 1, pos.x + n, pos.y - n, pos.z);
+      set_xyz(pick_verts, 4, i, 2, pos.x + n, pos.y + n, pos.z);
+      set_xyz(pick_verts, 4, i, 3, pos.x - n, pos.y + n, pos.z);
+      set_rgb(pick_colors, 4, i, 0, (GLubyte)p.x, (GLubyte)p.y, 1);
+      set_rgb(pick_colors, 4, i, 1, (GLubyte)p.x, (GLubyte)p.y, 1);
+      set_rgb(pick_colors, 4, i, 2, (GLubyte)p.x, (GLubyte)p.y, 1);
+      set_rgb(pick_colors, 4, i, 3, (GLubyte)p.x, (GLubyte)p.y, 1);
+      i++;
+    }
+  }
+}
+
+void draw_for_picking(void){
+  glLoadIdentity();
+  glPushMatrix();
+  set_camera();
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  {
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, pick_colors);
+    glVertexPointer(3, GL_FLOAT, 0, pick_verts);
+    glDrawArrays(GL_QUADS, 0, pick_verts_count);
+  }
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glPopMatrix();
+}
+
+bool pick_block(V3i *p){
+  GLint viewport[4];
+  GLubyte pixel[3];
+  assert(p);
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  glReadPixels(mouse_pos.x, viewport[3] - mouse_pos.y,
+      1, 1, GL_RGB, GL_UNSIGNED_BYTE, (void*)pixel);
+  if(pixel[2] == 0)
+    return false;
+  p->x = pixel[0];
+  p->y = pixel[1];
+  return true;
+}
+
 int main(void){
   init();
   map_init();
@@ -863,6 +952,7 @@ int main(void){
 #if 0
   md5_init();
 #endif
+  build_picking_blocks_array();
   main_loop();
   shut_down(0);
   return 0;
