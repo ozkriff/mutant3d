@@ -76,6 +76,8 @@ GLuint wall_texture;
 static SDL_GLContext context;
 SDL_Window *win = NULL;
 
+V2i mouse_pos = {0, 0};
+
 /*TODO: remove me*/
 void build_map_array(void);
 void build_walls_array(void);
@@ -510,6 +512,12 @@ void print_world(){
 }
 #endif
 
+static void
+mousemove(SDL_MouseMotionEvent e){
+  mouse_pos.x = (int)e.x;
+  mouse_pos.y = (int)e.y;
+}
+
 void events(void){
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
@@ -529,6 +537,9 @@ void events(void){
         break;
       case SDL_KEYDOWN:
         keys_callback(e.key);
+        break;
+      case SDL_MOUSEMOTION:
+        mousemove(e.motion);
         break;
       default:
 	/* TODO */
