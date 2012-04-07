@@ -501,16 +501,12 @@ void keys(void){
   }
 }
 
-#if 0
-void print_world(){
-  int winx, winy;
+void print_world(void){
   V3f v;
-  glfwGetMousePos(&winx, &winy);
-  assert(winx >= 0 && winy >= 0);
-  win2world(winx, winy, &v);
-  printf("%3d:%3d [% 3.3f % 3.3f % 3.3f]\n", winx, winy, v.x, v.y, v.z);
+  win2world(mouse_pos.x, mouse_pos.y, &v);
+  printf("%3d:%3d [% 3.3f % 3.3f % 3.3f]\n",
+      mouse_pos.x, mouse_pos.y, v.x, v.y, v.z);
 }
-#endif
 
 static void
 mousemove(SDL_MouseMotionEvent e){
