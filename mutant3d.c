@@ -146,15 +146,9 @@ static bool check_wall(V3i a_pos, V3i b_pos){
   d = m2dir(a_pos, b_pos);
   if(d == D_ERROR)
     exit(0);
-#if 0
-  if(d == D_F && (a[0] || b[1] || b[2])) return false;
-  if(d == D_R && (a[1] || b[0] || b[3])) return false;
-  if(d == D_FR && (a[0] || a[1] || b[2] || b[3])) return false;
-#else
   if(d == D_F && (a[0] || b[1] || b[2])) return false;
   if(d == D_R && (a[1] || a[0] || b[3])) return false;
   if(d == D_FR && (a[0] || a[1] || b[2] || b[3])) return false;
-#endif
   return true;
 }
 
