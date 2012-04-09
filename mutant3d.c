@@ -457,7 +457,7 @@ void keys_callback(SDL_KeyboardEvent e) {
       if(key == '4') w[3] = (w[3]) ? 0 : 1;
       build_walls_array();
     }
-  } else if(mode == M_SET_HEIGHTS){
+  }else if(mode == M_SET_HEIGHTS){
     Block3 *b = block(active_block_pos);
     if(b){
       int *h = b->heights;
