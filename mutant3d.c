@@ -219,24 +219,26 @@ void set_camera(void){
 }
 
 void draw_active_block(V3i p){
+  GLfloat va[12 * 3] = {0};
   float n = BLOCK_SIZE / 2.0f;
   float x = (float)p.x * BLOCK_SIZE;
   float y = (float)p.y * BLOCK_SIZE;
-  glColor3f(0.0f, 0.0f, 1.0f);
-  glBegin(GL_LINES);
-  glVertex3f(x, y, 0);
-  glVertex3f(x, y, (float)p.z * BLOCK_SIZE * 2);
-  glVertex3f(x, y, (float)(p.z + 1) * BLOCK_SIZE * 2);
-  glVertex3f(x, y, (float)(MAP_Z - 1) * (BLOCK_SIZE*2) + 4*n);
-  glEnd();
-  glTranslatef(x, y,
-      (float)p.z * BLOCK_SIZE * 2);
-  glBegin(GL_LINES);
-  glVertex3f(-n, -n, 0); glVertex3f(-n, -n, n*4);
-  glVertex3f(+n, -n, 0); glVertex3f(+n, -n, n*4);
-  glVertex3f(+n, +n, 0); glVertex3f(+n, +n, n*4);
-  glVertex3f(-n, +n, 0); glVertex3f(-n, +n, n*4);
-  glEnd();
+  float z = (float)p.z * BLOCK_SIZE * 2;
+  set_xyz(va, 2, 0, 0, x, y, 0);
+  set_xyz(va, 2, 0, 1, x, y, z);
+  set_xyz(va, 2, 1, 0, x, y, (float)(p.z + 1) * BLOCK_SIZE * 2);
+  set_xyz(va, 2, 1, 1, x, y, (float)MAP_Z * BLOCK_SIZE * 2);
+  set_xyz(va, 2, 2, 0, x - n, y - n, z);
+  set_xyz(va, 2, 2, 1, x - n, y - n, z + n * 4);
+  set_xyz(va, 2, 3, 0, x + n, y - n, z);
+  set_xyz(va, 2, 3, 1, x + n, y - n, z + n * 4);
+  set_xyz(va, 2, 4, 0, x + n, y + n, z);
+  set_xyz(va, 2, 4, 1, x + n, y + n, z + n * 4);
+  set_xyz(va, 2, 5, 0, x - n, y + n, z);
+  set_xyz(va, 2, 5, 1, x - n, y + n, z + n * 4);
+  glColor3f(0, 0, 1);
+  glVertexPointer(3, GL_FLOAT, 0, va);
+  glDrawArrays(GL_LINES, 0, 12);
 }
 
 void draw(void){
@@ -288,12 +290,12 @@ void draw(void){
     glDrawArrays(GL_LINES, 0, path_verts_count);
     glLineWidth(1.0);
   }
-  glDisableClientState(GL_VERTEX_ARRAY);
   {
     glLineWidth(2.0);
     draw_active_block(active_block_pos);
     glLineWidth(1.0);
   }
+  glDisableClientState(GL_VERTEX_ARRAY);
   if(0){
     glEnable(GL_TEXTURE_2D);
     obj_draw(obj_tex, &obj_m);
