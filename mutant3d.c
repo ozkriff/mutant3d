@@ -80,7 +80,8 @@ GLuint wall_texture;
 static SDL_GLContext context;
 SDL_Window *win = NULL;
 
-V2i mouse_pos = {0, 0};
+/*Program segfaults if set this to {0, 0}*/
+V2i mouse_pos = {1, 1};
 
 /*TODO: remove me*/
 void build_map_array(void);
