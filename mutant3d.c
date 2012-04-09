@@ -228,8 +228,10 @@ void draw_active_block(V3i p){
   float x = (float)p.x * BLOCK_SIZE;
   float y = (float)p.y * BLOCK_SIZE;
   glColor3f(0.0f, 0.0f, 1.0f);
-  glBegin(GL_LINE_STRIP);
+  glBegin(GL_LINES);
   glVertex3f(x, y, 0);
+  glVertex3f(x, y, (float)p.z * BLOCK_SIZE * 2);
+  glVertex3f(x, y, (float)(p.z + 1) * BLOCK_SIZE * 2);
   glVertex3f(x, y, (float)(MAP_Z - 1) * (BLOCK_SIZE*2) + 4*n);
   glEnd();
   glTranslatef(x, y,
