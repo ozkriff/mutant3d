@@ -218,6 +218,9 @@ void set_camera(void){
   glTranslatef(map_pos.x, map_pos.y, 0);
 }
 
+/* TODO remove*/
+void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z);
+
 void draw_active_block(V3i p){
   GLfloat va[12 * 3] = {0};
   float n = BLOCK_SIZE / 2.0f;
