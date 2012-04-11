@@ -15,6 +15,7 @@ typedef struct { int x, y; } V2i;
 float deg2rad(float deg);
 float rad2deg(float rad);
 
+Quat mk_quat(float x, float y, float z, float w);
 Quat quat_mul(Quat a, Quat b);
 V3f quat_rot(Quat q, V3f v);
 void quat_renormalize(Quat *q);
