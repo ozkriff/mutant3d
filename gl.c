@@ -79,3 +79,12 @@ void win2world(int x, int y, V3f *p){
   p->y = (float)wy;
   p->z = (float)wz;
 }
+
+void va_rotate(Va *va, Quat q){
+  int i;
+  for(i = 0; i < va->count; i++){
+    V3f *original = (V3f*)(va->v + i * 3);
+    V3f rotated = quat_rot(q, *original);
+    *original = rotated;
+  }
+}
