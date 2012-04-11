@@ -4,11 +4,13 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
+#include <GL/gl.h>
 #include <GL/glu.h>
 #include "bool.h"
 #include "math.h"
 #include "mutant3d.h"
 #include "misc.h"
+#include "gl.h"
 
 bool load_texture(char *filename, GLuint *id){
   GLenum texture_format;
