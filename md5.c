@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <string.h>
-#include <GL/glfw.h>
+#include <GL/gl.h>
 #include "bool.h"
 #include "math.h"
 #include "mutant3d.h"
