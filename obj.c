@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <GL/glfw.h>
+#include <GL/gl.h>
 #include "bool.h"
 #include "math.h"
 #include "mutant3d.h"
