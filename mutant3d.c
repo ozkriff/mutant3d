@@ -91,6 +91,18 @@ Block3 *block(V3i p){
   return map[p.z][p.y][p.x];
 }
 
+V3f v3i_to_v3f(V3i i){
+  V3f f;
+  Block3 *b;
+  assert(inboard(i));
+  b = block(i);
+  f.x = (float)i.x * BLOCK_SIZE;
+  f.y = (float)i.y * BLOCK_SIZE;
+  f.z = (float)i.z * BLOCK_SIZE_2;
+  f.z += (BLOCK_SIZE_2 / BLOCK_HEIGHT) * (float)b->h;
+  return f;
+}
+
 /*TODO check if unit can stand here (enough vertical space)*/
 bool is_block_walkable(V3i pos){
   Block3 *b;
@@ -759,18 +771,6 @@ void build_obj(Obj_model *model){
       set_xy(va_obj.t, 2, i, j, tex->x, tex->y);
     }
   }
-}
-
-V3f v3i_to_v3f(V3i i){
-  V3f f;
-  Block3 *b;
-  assert(inboard(i));
-  b = block(i);
-  f.x = (float)i.x * BLOCK_SIZE;
-  f.y = (float)i.y * BLOCK_SIZE;
-  f.z = (float)i.z * BLOCK_SIZE_2;
-  f.z += (BLOCK_SIZE_2 / BLOCK_HEIGHT) * (float)b->h;
-  return f;
 }
 
 void build_map_array(void){
