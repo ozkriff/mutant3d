@@ -36,10 +36,8 @@ Quat quat_mul(Quat a, Quat b){
 }
 
 V3f quat_rot(Quat q, V3f v){
-  Quat p;
-  Quat qConj;
-  p = mk_quat(v.x, v.y, v.z, 0);
-  qConj = mk_quat(-q.x, -q.y, -q.z, q.w);
+  Quat p = mk_quat(v.x, v.y, v.z, 0);
+  Quat qConj = mk_quat(-q.x, -q.y, -q.z, q.w);
   p = quat_mul(q, quat_mul(p, qConj));
   return mk_v3f(p.x, p.y, p.z);
 }
@@ -53,10 +51,10 @@ V3f mk_v3f(float x, float y, float z){
 }
 
 V3f v3f_plus(V3f a, V3f b){
-   a.x += b.x;
-   a.y += b.y;
-   a.z += b.z;
-   return a;
+  a.x += b.x;
+  a.y += b.y;
+  a.z += b.z;
+  return a;
 }
 
 float v3f_dot(V3f a, V3f b){
@@ -89,9 +87,9 @@ V2f mk_v2f(float x, float y){
 }
 
 V2f v2f_plus(V2f a, V2f b){
-   a.x += b.x;
-   a.y += b.y;
-   return a;
+  a.x += b.x;
+  a.y += b.y;
+  return a;
 }
 
 float v2f_dot(V2f a, V2f b){
