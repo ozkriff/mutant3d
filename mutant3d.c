@@ -351,6 +351,20 @@ void map_to_file(const char *filename){
   fclose(f);
 }
 
+void calc_block_height(Block3 *b){
+  int *h = b->heights;
+  int max = h[0];
+  int min = h[0];
+  int i;
+  for(i = 0; i < 4; i++){
+    if(h[i] < min)
+      min = h[i];
+    if(h[i] > max)
+      max = h[i];
+  }
+  b->h = (min + max) / 2;
+}
+
 void map_from_file(const char *filename){
   V3i p = {0, 0, 0};
   FILE *f = fopen(filename, "r");
@@ -385,6 +399,7 @@ void map_from_file(const char *filename){
       b->heights[1] = h[1];
       b->heights[2] = h[2];
       b->heights[3] = h[3];
+      calc_block_height(b);
       b->parent.x = -1;
       map[p.z][p.y][p.x] = b;
     }
@@ -471,11 +486,12 @@ void keys_callback(SDL_KeyboardEvent e) {
     Block3 *b = block(active_block_pos);
     if(b){
       int *h = b->heights;
-      if(key == '1') h[0] = (h[0]) ? 0 : 1;
-      if(key == '2') h[1] = (h[1]) ? 0 : 1;
-      if(key == '3') h[2] = (h[2]) ? 0 : 1;
-      if(key == '4') h[3] = (h[3]) ? 0 : 1;
+      if(key == '1') { h[1]++; if(h[1] > BLOCK_HEIGHT) h[1] = 0; }
+      if(key == '2') { h[2]++; if(h[2] > BLOCK_HEIGHT) h[2] = 0; }
+      if(key == '3') { h[3]++; if(h[3] > BLOCK_HEIGHT) h[3] = 0; }
+      if(key == '4') { h[0]++; if(h[0] > BLOCK_HEIGHT) h[0] = 0; }
       build_map_array();
+      calc_block_height(b);
     }
   }
 }
@@ -771,12 +787,13 @@ void build_map_array(void){
     if(b && enabled_levels[p.z]){
       int *h = b->heights;
       float n = BLOCK_SIZE / 2.0;
-      float n2 = (BLOCK_HEIGHT / 32.0f) * 4;
+      float n2 = BLOCK_SIZE_2 / BLOCK_HEIGHT;
+      float z = BLOCK_SIZE_2 * (float)p.z;
       V3f pos = v3i_to_v3f(p);
-      set_xyz(va_map.v, 4, i, 0, pos.x - n, pos.y - n, pos.z + (h[0] ? n2 : 0));
-      set_xyz(va_map.v, 4, i, 1, pos.x + n, pos.y - n, pos.z + (h[1] ? n2 : 0));
-      set_xyz(va_map.v, 4, i, 2, pos.x + n, pos.y + n, pos.z + (h[2] ? n2 : 0));
-      set_xyz(va_map.v, 4, i, 3, pos.x - n, pos.y + n, pos.z + (h[3] ? n2 : 0));
+      set_xyz(va_map.v, 4, i, 0, pos.x - n, pos.y - n, z + (float)h[0] * n2);
+      set_xyz(va_map.v, 4, i, 1, pos.x + n, pos.y - n, z + (float)h[1] * n2);
+      set_xyz(va_map.v, 4, i, 2, pos.x + n, pos.y + n, z + (float)h[2] * n2);
+      set_xyz(va_map.v, 4, i, 3, pos.x - n, pos.y + n, z + (float)h[3] * n2);
       set_xy(va_map.t, 4, i, 0, 0.0f, 0.0f);
       set_xy(va_map.t, 4, i, 1, 1.0f, 0.0f);
       set_xy(va_map.t, 4, i, 2, 1.0f, 1.0f);
