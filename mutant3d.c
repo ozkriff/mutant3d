@@ -222,7 +222,7 @@ void set_camera(void){
 void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z);
 
 void draw_active_block(V3i p){
-  GLfloat va[12 * 3] = {0};
+  GLfloat va[28 * 3] = {0};
   float n = BLOCK_SIZE / 2.0f;
   float x = (float)p.x * BLOCK_SIZE;
   float y = (float)p.y * BLOCK_SIZE;
@@ -231,6 +231,7 @@ void draw_active_block(V3i p){
   set_xyz(va, 2, 0, 1, x, y, z);
   set_xyz(va, 2, 1, 0, x, y, (float)(p.z + 1) * BLOCK_SIZE * 2);
   set_xyz(va, 2, 1, 1, x, y, (float)MAP_Z * BLOCK_SIZE * 2);
+  /*vertical lines*/
   set_xyz(va, 2, 2, 0, x - n, y - n, z);
   set_xyz(va, 2, 2, 1, x - n, y - n, z + n * 4);
   set_xyz(va, 2, 3, 0, x + n, y - n, z);
@@ -239,9 +240,27 @@ void draw_active_block(V3i p){
   set_xyz(va, 2, 4, 1, x + n, y + n, z + n * 4);
   set_xyz(va, 2, 5, 0, x - n, y + n, z);
   set_xyz(va, 2, 5, 1, x - n, y + n, z + n * 4);
+  /*bottom*/
+  set_xyz(va, 2, 6, 0, x - n, y - n, z);
+  set_xyz(va, 2, 6, 1, x + n, y - n, z);
+  set_xyz(va, 2, 7, 0, x + n, y - n, z);
+  set_xyz(va, 2, 7, 1, x + n, y + n, z);
+  set_xyz(va, 2, 8, 0, x + n, y + n, z);
+  set_xyz(va, 2, 8, 1, x - n, y + n, z);
+  set_xyz(va, 2, 9, 0, x - n, y + n, z);
+  set_xyz(va, 2, 9, 1, x - n, y - n, z);
+  /*top*/
+  set_xyz(va, 2, 10, 0, x - n, y - n, z + n * 4);
+  set_xyz(va, 2, 10, 1, x + n, y - n, z + n * 4);
+  set_xyz(va, 2, 11, 0, x + n, y - n, z + n * 4);
+  set_xyz(va, 2, 11, 1, x + n, y + n, z + n * 4);
+  set_xyz(va, 2, 12, 0, x + n, y + n, z + n * 4);
+  set_xyz(va, 2, 12, 1, x - n, y + n, z + n * 4);
+  set_xyz(va, 2, 13, 0, x - n, y + n, z + n * 4);
+  set_xyz(va, 2, 13, 1, x - n, y - n, z + n * 4);
   glColor3f(0, 0, 1);
   glVertexPointer(3, GL_FLOAT, 0, va);
-  glDrawArrays(GL_LINES, 0, 12);
+  glDrawArrays(GL_LINES, 0, 28);
 }
 
 void draw(void){
