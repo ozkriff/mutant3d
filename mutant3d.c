@@ -39,6 +39,7 @@ typedef enum {
 Mode mode = M_NORMAL;
 
 #define BLOCK_SIZE 1.0f
+#define BLOCK_SIZE_2 (BLOCK_SIZE * 2.0f)
 
 GLfloat LightAmbient[4] = {0.1f, 0.1f, 0.1f, 0.2f};
 GLfloat LightDiffuse[4] = {0.5, 0.5, 0.5, 0.5};
@@ -216,11 +217,11 @@ void draw_active_block(V3i p){
   float n = BLOCK_SIZE / 2.0f;
   float x = (float)p.x * BLOCK_SIZE;
   float y = (float)p.y * BLOCK_SIZE;
-  float z = (float)p.z * BLOCK_SIZE * 2;
+  float z = (float)p.z * BLOCK_SIZE_2;
   set_xyz(va, 2, 0, 0, x, y, 0);
   set_xyz(va, 2, 0, 1, x, y, z);
-  set_xyz(va, 2, 1, 0, x, y, (float)(p.z + 1) * BLOCK_SIZE * 2);
-  set_xyz(va, 2, 1, 1, x, y, (float)MAP_Z * BLOCK_SIZE * 2);
+  set_xyz(va, 2, 1, 0, x, y, (float)(p.z + 1) * BLOCK_SIZE_2);
+  set_xyz(va, 2, 1, 1, x, y, (float)MAP_Z * BLOCK_SIZE_2);
   /*vertical lines*/
   set_xyz(va, 2, 2, 0, x - n, y - n, z);
   set_xyz(va, 2, 2, 1, x - n, y - n, z + n * 4);
@@ -751,7 +752,7 @@ V3f v3i_to_v3f(V3i i){
   b = block(i);
   f.x = (float)i.x * BLOCK_SIZE;
   f.y = (float)i.y * BLOCK_SIZE;
-  f.z = (float)i.z * (BLOCK_SIZE*2) + ((BLOCK_SIZE*2) / BLOCK_HEIGHT) * (float)b->h;
+  f.z = (float)i.z * BLOCK_SIZE_2 + (BLOCK_SIZE_2 / BLOCK_HEIGHT) * (float)b->h;
   return f;
 }
 
@@ -893,7 +894,7 @@ void build_picking_blocks_array(void){
       V3f pos;
       pos.x = BLOCK_SIZE * (float)p.x;
       pos.y = BLOCK_SIZE * (float)p.y;
-      pos.z = BLOCK_SIZE * 2 * (float)active_block_pos.z;
+      pos.z = BLOCK_SIZE_2 * (float)active_block_pos.z;
       set_xyz(va_pick.v, 4, i, 0, pos.x - n, pos.y - n, pos.z);
       set_xyz(va_pick.v, 4, i, 1, pos.x + n, pos.y - n, pos.z);
       set_xyz(va_pick.v, 4, i, 2, pos.x + n, pos.y + n, pos.z);
