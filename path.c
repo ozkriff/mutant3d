@@ -26,7 +26,7 @@ static V3i pop(void){
   V3i m = *(V3i*)tmp->data;
   free(tmp->data);
   free(tmp);
-  return(m);
+  return m;
 }
 
 static int get_tile_cost(V3i t, V3i nb){
@@ -148,5 +148,5 @@ List get_path(V3i pos){
   /*Add start position.*/
   push_node(&path, COPY_TO_HEAP(&pos, V3i));
   assert(stack.count == 0);
-  return(path);
+  return path;
 }
