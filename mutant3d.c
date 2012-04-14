@@ -608,7 +608,21 @@ void events(void){
   }
 }
 
-void draw_for_picking(void); /* TODO remove */
+void draw_for_picking(void){
+  glLoadIdentity();
+  glPushMatrix();
+  set_camera();
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  {
+    glColorPointer(3, GL_UNSIGNED_BYTE, 0, va_pick.ub_c);
+    glVertexPointer(3, GL_FLOAT, 0, va_pick.v);
+    glDrawArrays(GL_QUADS, 0, va_pick.count);
+  }
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glPopMatrix();
+}
 
 void main_loop(void){
   while(!done) {
@@ -939,22 +953,6 @@ void build_picking_blocks_array(void){
       i++;
     }
   }
-}
-
-void draw_for_picking(void){
-  glLoadIdentity();
-  glPushMatrix();
-  set_camera();
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_COLOR_ARRAY);
-  {
-    glColorPointer(3, GL_UNSIGNED_BYTE, 0, va_pick.ub_c);
-    glVertexPointer(3, GL_FLOAT, 0, va_pick.v);
-    glDrawArrays(GL_QUADS, 0, va_pick.count);
-  }
-  glDisableClientState(GL_COLOR_ARRAY);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glPopMatrix();
 }
 
 bool pick_block(V3i *p){
