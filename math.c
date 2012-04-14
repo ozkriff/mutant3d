@@ -139,3 +139,7 @@ V3i mk_v3i(int x, int y, int z){
   pos.z = z;
   return pos;
 }
+
+bool v3i_is_equal(V3i a, V3i b){
+  return a.x == b.x && a.y == b.y && a.z == b.z;
+}

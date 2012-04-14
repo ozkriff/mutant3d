@@ -36,3 +36,4 @@ V3f v3f_mul_float(V3f v, float f);
 float v3f_length(V3f v);
 
 V3i mk_v3i(int x, int y, int z);
+bool v3i_is_equal(V3i a, V3i b);
