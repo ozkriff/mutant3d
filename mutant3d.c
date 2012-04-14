@@ -256,8 +256,6 @@ void set_rgb(GLubyte *colors, int n, int i, int vi, GLubyte r, GLubyte g, GLubyt
   color[2] = b;
 }
 
-
-
 void draw_active_block(V3i p){
   GLfloat va[28 * 3] = {0};
   float n = BLOCK_SIZE / 2.0f;
