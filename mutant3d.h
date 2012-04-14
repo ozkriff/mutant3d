@@ -1,5 +1,7 @@
 /*See LICENSE file for copyright and license details.*/
 
+typedef unsigned short int ushort;
+
 typedef enum {
   B_EMPTY,
   B_FLOOR
@@ -16,13 +18,12 @@ typedef enum {
 } Dir;
 
 typedef struct {
-  Block_type_id t;
-  int h; /*height*/
-  int clearence;
-  bool path;
-  bool walls[4];
-  int heights[4];
-  Dir parent;
+  ushort t; /*Block_type_id*/
+  ushort h; /*height*/
+  ushort clearence;
+  ushort walls[4];
+  ushort heights[4];
+  ushort parent; /*Dir*/
   int cost;
 } Block3;
 

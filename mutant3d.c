@@ -131,8 +131,8 @@ bool check_height_diff(V3i p1, V3i p2, int max_diff){
 
 /*TODO стена должна отображаться сразу у двух клеток.*/
 static bool check_wall(V3i a_pos, V3i b_pos){
-  bool *a;
-  bool *b;
+  ushort *a;
+  ushort *b;
   Dir d;
   {
     int dx = b_pos.x - a_pos.x;
@@ -164,11 +164,11 @@ bool check_xxx(V3i orig_pos, V3i pos, int height){
 /*TODO:
   Проверять разницу в высоте не с начальным блоком,
   а с прилегающими!*/
-int calc_block_clearence(V3i p, int max_size){
-  int i, j;
-  int h = MAX_HEIGHT_DIFF;
+ushort calc_block_clearence(V3i p, ushort max_size){
+  ushort i;
+  ushort j;
+  ushort h = MAX_HEIGHT_DIFF;
   assert(inboard(p));
-  assert(max_size >= 0);
   if(block(p) && block(p)->t != B_FLOOR)
     return 0;
   for(i = 1; i < max_size; i++){
@@ -194,7 +194,7 @@ int calc_block_clearence(V3i p, int max_size){
   return max_size;
 }
 
-void calc_map_clearence(int max_size){
+void calc_map_clearence(ushort max_size){
   V3i p = {0, 0, 0};
   assert(max_size > 0);
   while(is_able_to_inc_v3i(&p)){
@@ -378,9 +378,9 @@ void map_to_file(const char *filename){
 }
 
 void calc_block_height(Block3 *b){
-  int *h = b->heights;
-  int max = h[0];
-  int min = h[0];
+  ushort *h = b->heights;
+  ushort max = h[0];
+  ushort min = h[0];
   int i;
   for(i = 0; i < 4; i++){
     if(h[i] < min)
@@ -388,7 +388,7 @@ void calc_block_height(Block3 *b){
     if(h[i] > max)
       max = h[i];
   }
-  b->h = (min + max) / 2;
+  b->h = (ushort)(min + max) / 2;
 }
 
 void map_from_file(const char *filename){
@@ -409,22 +409,23 @@ void map_from_file(const char *filename){
 #endif
     }else{
       Block3 *b = map[p.z][p.y][p.x];
-      int h[4], w[4], t, n;
+      int height, h[4], w[4], t, n;
       if(!b)
         b = ALLOCATE(1, Block3);
       sscanf(s, "%d:: type:%d h:%d walls:(%d %d %d %d) h:(%d %d %d %d)",
-          &n, &t, &b->h,
+          &n, &t, &height,
           &w[0], &w[1], &w[2], &w[3],
           &h[0], &h[1], &h[2], &h[3]);
-      b->t = (Block_type_id)t;
-      b->walls[0] = (bool)w[0];
-      b->walls[1] = (bool)w[1];
-      b->walls[2] = (bool)w[2];
-      b->walls[3] = (bool)w[3];
-      b->heights[0] = h[0];
-      b->heights[1] = h[1];
-      b->heights[2] = h[2];
-      b->heights[3] = h[3];
+      b->t = (ushort)t;
+      b->h = (ushort)height;
+      b->walls[0] = (ushort)w[0];
+      b->walls[1] = (ushort)w[1];
+      b->walls[2] = (ushort)w[2];
+      b->walls[3] = (ushort)w[3];
+      b->heights[0] = (ushort)h[0];
+      b->heights[1] = (ushort)h[1];
+      b->heights[2] = (ushort)h[2];
+      b->heights[3] = (ushort)h[3];
       calc_block_height(b);
       b->parent = D_NONE;
       map[p.z][p.y][p.x] = b;
@@ -501,7 +502,7 @@ void keys_callback(SDL_KeyboardEvent e) {
   if(mode == M_SET_WALLS){
     Block3 *b = block(active_block_pos);
     if(b){
-      bool *w = b->walls;
+      ushort *w = b->walls;
       if(key == '1') w[0] = (w[0]) ? 0 : 1;
       if(key == '2') w[1] = (w[1]) ? 0 : 1;
       if(key == '3') w[2] = (w[2]) ? 0 : 1;
@@ -511,7 +512,7 @@ void keys_callback(SDL_KeyboardEvent e) {
   }else if(mode == M_SET_HEIGHTS){
     Block3 *b = block(active_block_pos);
     if(b){
-      int *h = b->heights;
+      ushort *h = b->heights;
       if(key == '1') { h[1]++; if(h[1] > BLOCK_HEIGHT) h[1] = 0; }
       if(key == '2') { h[2]++; if(h[2] > BLOCK_HEIGHT) h[2] = 0; }
       if(key == '3') { h[3]++; if(h[3] > BLOCK_HEIGHT) h[3] = 0; }
@@ -800,7 +801,7 @@ void build_map_array(void){
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
     if(b && enabled_levels[p.z]){
-      int *h = b->heights;
+      ushort *h = b->heights;
       float n = BLOCK_SIZE / 2.0;
       float n2 = BLOCK_SIZE_2 / BLOCK_HEIGHT;
       float z = BLOCK_SIZE_2 * (float)p.z;
