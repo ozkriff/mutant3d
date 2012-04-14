@@ -50,8 +50,7 @@ void die(const char *errstr, ...){
   exit(EXIT_FAILURE);
 }
 
-/*TODO: rename me*/
-void* copy2heap(void *data, int size){
+void* copy_to_heap(void *data, int size){
   void *tmp = my_alloc(1, size);
   memcpy(tmp, data, (unsigned int)size);
   return tmp;
