@@ -9,7 +9,7 @@ typedef enum {
 
 /*forward right backward left up down*/
 typedef enum {
-  D_F,  D_FR,  D_R,  D_BR,  D_B,  D_BL,  D_L,  D_FL,
+  D_F, D_FR, D_R, D_BR, D_B, D_BL, D_L, D_FL,
   D_UF, D_UFR, D_UR, D_UBR, D_UB, D_UBL, D_UL, D_UFL,
   D_DF, D_DFR, D_DR, D_DBR, D_DB, D_DBL, D_DL, D_DFL,
   D_NONE, D_ERROR, D_COUNT
