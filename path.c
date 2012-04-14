@@ -14,7 +14,7 @@ static Stack stack = {NULL, NULL, 0};
 
 /*Push this coordinates to stack,
   update cost and parent of this block*/
-static void push(V3i m, V3i parent, int newcost) {
+static void push(V3i m, Dir parent, int newcost) {
   Block3 *b = block(m);
   b->cost = newcost;
   b->parent = parent;
@@ -101,7 +101,7 @@ static void process_neibor(V3i p1, V3i p2){
     return;
   newcost = b1->cost + get_tile_cost(p1, p2);
   if(b2->cost > newcost && newcost <= ACTION_POINTS)
-    push(p2, p1, newcost);
+    push(p2, m2dir(p2, p1), newcost);
 }
 
 static void clean_map(void){
@@ -110,14 +110,14 @@ static void clean_map(void){
     Block3 *b = block(p);
     if(b){
       b->cost = 30000;
-      b->parent = mk_v3i(-1, -1, -1);
+      b->parent = D_NONE;
     }
     inc_v3i(&p);
   }
 }
 
 static void try_to_push_neibors(V3i m){
-  unsigned int i;
+  Dir i;
   assert(inboard(m));
   for(i = 0; i < 8 * 3; i++){
     V3i neib_m = neib(m, i);
@@ -132,7 +132,7 @@ void fill_map(V3i pos){
   if(!block(pos))
     return;
   clean_map();
-  push(pos, pos, 0); /*push start position*/
+  push(pos, D_NONE, 0); /*push start position*/
   while(stack.count > 0)
     try_to_push_neibors(pop());
   clear_list(&stack);
@@ -140,13 +140,14 @@ void fill_map(V3i pos){
 
 List get_path(V3i pos){
   List path = {NULL, NULL, 0};
+  Dir dir;
   assert(inboard(pos));
   while(block(pos)->cost != 0){
-    push_node(&path, COPY_TO_HEAP(&pos, V3i));
-    pos = block(pos)->parent;
+    push_node(&path, COPY_TO_HEAP(&dir, Dir));
+    pos = neib(pos, dir);
   }
   /*Add start position.*/
-  push_node(&path, COPY_TO_HEAP(&pos, V3i));
+  push_node(&path, COPY_TO_HEAP(&dir, Dir));
   assert(stack.count == 0);
   return path;
 }

@@ -426,7 +426,7 @@ void map_from_file(const char *filename){
       b->heights[2] = h[2];
       b->heights[3] = h[3];
       calc_block_height(b);
-      b->parent.x = -1;
+      b->parent = D_NONE;
       map[p.z][p.y][p.x] = b;
     }
     inc_v3i(&p);
@@ -491,7 +491,7 @@ void keys_callback(SDL_KeyboardEvent e) {
         b = ALLOCATE(1, Block3);
         b->t = B_FLOOR;
         b->h = 0;
-        b->parent = mk_v3i(-1, -1, -1);
+        b->parent = D_NONE;
         map[active_block_pos.z][active_block_pos.y][active_block_pos.x] = b;
         calc_map_clearence(3);
       }
@@ -727,7 +727,7 @@ int get_path_lines_count(void){
   int n = 0;
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
-    if(b && b->parent.x != -1)
+    if(b && b->parent != D_NONE)
       n++;
     inc_v3i(&p);
   }
@@ -831,9 +831,9 @@ void build_path_array(void){
   va_path.v = ALLOCATE(va_path.count * 3, float);
   while(is_able_to_inc_v3i(&p)){
     Block3 *b = block(p);
-    if(b && enabled_levels[p.z] && b->parent.x != -1){
+    if(b && enabled_levels[p.z] && b->parent != D_NONE){
       V3f pos1 = v3i_to_v3f(p);
-      V3f pos2 = v3i_to_v3f(b->parent);
+      V3f pos2 = v3i_to_v3f(neib(p, b->parent));
       set_xyz(va_path.v, 2, i, 0, pos1.x, pos1.y, pos1.z + 0.1f);
       set_xyz(va_path.v, 2, i, 1, pos2.x, pos2.y, pos2.z + 0.1f);
       i++;
