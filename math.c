@@ -132,6 +132,13 @@ void quat_renormalize(Quat *q){
     q->w = -(float)sqrt(len);
 }
 
+V2i mk_v2i(int x, int y){
+  V2i pos;
+  pos.x = x;
+  pos.y = y;
+  return pos;
+}
+
 V3i mk_v3i(int x, int y, int z){
   V3i pos;
   pos.x = x;
