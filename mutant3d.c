@@ -71,8 +71,7 @@ GLuint wall_texture;
 static SDL_GLContext context;
 SDL_Window *win = NULL;
 
-/*Program segfaults if set this to {0, 0}*/
-V2i mouse_pos = {1, 1};
+V2i mouse_pos = {0, 0};
 
 /*TODO: remove me*/
 void build_map_array(void);
@@ -959,6 +958,7 @@ bool pick_block(V3i *p){
   GLubyte pixel[3];
   assert(p);
   glGetIntegerv(GL_VIEWPORT, viewport);
+  viewport[3] -= 1;
   glReadPixels(mouse_pos.x, viewport[3] - mouse_pos.y,
       1, 1, GL_RGB, GL_UNSIGNED_BYTE, (void*)pixel);
   if(pixel[2] == 0)
