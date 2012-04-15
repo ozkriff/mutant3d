@@ -604,6 +604,10 @@ void print_world(void){
 }
 
 static void mousemove(SDL_MouseMotionEvent e){
+  if(SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_RMASK){
+    rotate_z -= (float)e.xrel / 2.0f;
+    rotate_x += (float)e.yrel / 2.0f;
+  }
   mouse_pos.x = (int)e.x;
   mouse_pos.y = (int)e.y;
 }
