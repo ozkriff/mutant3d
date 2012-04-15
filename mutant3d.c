@@ -714,7 +714,6 @@ void init(void) {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glLineWidth(1.0);
 #endif
-  /* glfwSetKeyCallback(keys_callback); */
   glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
   glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
   glEnable(GL_LIGHT1);
