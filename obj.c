@@ -62,7 +62,7 @@ void obj_read(Obj_model *m, char *filename){
       if(items != 3)
         die("vn: items != 3\n");
       n_i++;
-    }else if (buffer[0] == 'v' && buffer[1] == 't'){
+    }else if(buffer[0] == 'v' && buffer[1] == 't'){
       /*Texture coords*/
       int items;
       V2f *tex = m->text_coords + t_i;
@@ -70,17 +70,17 @@ void obj_read(Obj_model *m, char *filename){
       if(items != 2)
         die("vt: items != 2\n");
       t_i++;
-    }else if (buffer[0] == 'f' && buffer [1] == ' '){
+    }else if(buffer[0] == 'f' && buffer [1] == ' '){
       /*Faces*/
       int items;
       Obj_triangle *t;
       int slash_count = 0;
       int i;
       for (i = 2; buffer[i] != ' '; i++)
-        if (buffer[i] == '/')
+        if(buffer[i] == '/')
           slash_count++;
       t = m->faces + f_i;
-      if (slash_count == 1){
+      if(slash_count == 1){
         items = sscanf(buffer, "f %d/%d %d/%d %d/%d",
           &t->v[0],
           &t->t[0],
@@ -90,7 +90,7 @@ void obj_read(Obj_model *m, char *filename){
           &t->t[2]);
         if(items != 6)
           die("f: items != 6\n");
-      }else if (slash_count == 2){
+      }else if(slash_count == 2){
         items = sscanf(buffer, "f %d/%d/%d %d/%d/%d %d/%d/%d",
           &t->v[0],
           &t->t[0],

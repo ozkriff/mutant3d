@@ -611,12 +611,12 @@ mousemove(SDL_MouseMotionEvent e){
 
 void events(void){
   SDL_Event e;
-  while (SDL_PollEvent(&e)) {
-    switch (e.type) {
+  while(SDL_PollEvent(&e)){
+    switch(e.type){
       case SDL_WINDOWEVENT:
-        switch (e.window.event) {
+        switch(e.window.event) {
           case SDL_WINDOWEVENT_CLOSE:
-            if (win)
+            if(win)
               SDL_DestroyWindow(win);
             break;
           default:
