@@ -603,8 +603,7 @@ void print_world(void){
       mouse_pos.x, mouse_pos.y, v.x, v.y, v.z);
 }
 
-static void
-mousemove(SDL_MouseMotionEvent e){
+static void mousemove(SDL_MouseMotionEvent e){
   mouse_pos.x = (int)e.x;
   mouse_pos.y = (int)e.y;
 }
