@@ -1,3 +1,5 @@
+/*See LICENSE file for copyright and license details.*/
+
 /*TODO: add colorFG, colorBG*/
 typedef struct {
   int id;

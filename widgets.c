@@ -1,3 +1,5 @@
+/*See LICENSE file for copyright and license details.*/
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_opengl.h>
