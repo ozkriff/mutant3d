@@ -646,8 +646,11 @@ void events(void){
         /*TODO*/
         V2i pos = mk_v2i((int)e.button.x, (int)e.button.y);
         Button *b = v2i_to_button(pos);
-        if(b)
+        if(b){
           printf("BUTTON ID:%d\n", b->id);
+          if(b->callback)
+            b->callback();
+        }
         break;
       }
       case SDL_MOUSEBUTTONUP:
@@ -1030,6 +1033,14 @@ bool pick_block(V3i *p){
   return true;
 }
 
+void test_callback_1(void){
+  puts("TEST CALLBACK 1");
+}
+
+void test_callback_2(void){
+  puts("TEST CALLBACK 2");
+}
+
 int main(void){
   init();
   map_init();
@@ -1046,8 +1057,10 @@ int main(void){
 #endif
   build_picking_blocks_array();
   font = open_font("data/fonts/DejaVuSansMono.ttf", 12);
-  add_button(font, 0, mk_v2i(0, 0), "TEST_BUTTON_1");
-  add_button(font, 1, mk_v2i(0, 30), "test_button_2");
+  add_button(font, 0, mk_v2i(0, 0), "TEST_BUTTON_1",
+     test_callback_1);
+  add_button(font, 1, mk_v2i(0, 30), "test_button_2",
+     test_callback_2);
   main_loop();
   shut_down(0);
   return 0;

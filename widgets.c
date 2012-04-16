@@ -47,13 +47,14 @@ void change_button_text_by_id (int id, char* text){
   }
 }
 
-void add_button(TTF_Font *f, int id, V2i pos, char *text){
+void add_button(TTF_Font *f, int id, V2i pos, char *text, void (*callback)(void)){
   Button *b = ALLOCATE(1, Button);
   b->f = f;
   b->id = id;
   b->pos = pos;
   b->text = text;
   b->texture_id = ttf_gl_print(f, text, &b->size);
+  b->callback = callback;
   push_node(&buttons, mk_node(b));
 }
 
