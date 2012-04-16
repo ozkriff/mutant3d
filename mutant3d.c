@@ -592,6 +592,45 @@ void events(void){
             if(win)
               SDL_DestroyWindow(win);
             break;
+          case SDL_WINDOWEVENT_SHOWN:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_SHOWN\n");
+            break;
+          case SDL_WINDOWEVENT_HIDDEN:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_HIDDEN\n");
+            break;
+          case SDL_WINDOWEVENT_EXPOSED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_EXPOSED\n");
+            break;
+          case SDL_WINDOWEVENT_MOVED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_MOVED\n");
+            break;
+          case SDL_WINDOWEVENT_RESIZED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_RESIZED\n");
+            break;
+          case SDL_WINDOWEVENT_SIZE_CHANGED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_SIZE_CHANGED\n");
+            break;
+          case SDL_WINDOWEVENT_MINIMIZED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_MINIMIZED\n");
+            break;
+          case SDL_WINDOWEVENT_MAXIMIZED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_MAXIMIZED\n");
+            break;
+          case SDL_WINDOWEVENT_RESTORED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_RESTORED\n");
+            break;
+          case SDL_WINDOWEVENT_ENTER:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_ENTER\n");
+            break;
+          case SDL_WINDOWEVENT_LEAVE:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_LEAVE\n");
+            break;
+          case SDL_WINDOWEVENT_FOCUS_GAINED:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_FOCUS_GAINED\n");
+            break;
+          case SDL_WINDOWEVENT_FOCUS_LOST:
+            printf("WARNING: unhandled SDL_WINDOWEVENT_FOCUS_LOST\n");
+            break;
           default:
             printf("WARNING: events(): default case for "
                 "window.event %d\n", e.window.type);
@@ -601,8 +640,61 @@ void events(void){
       case SDL_KEYDOWN:
         keys_callback(e.key);
         break;
+      case SDL_KEYUP:
+        printf("WARNING: Unhandled SDL_KEYUP\n"); /*TODO*/
+        break;
       case SDL_MOUSEMOTION:
         mousemove(e.motion);
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        /*TODO*/
+        printf("WARNING: Unhandled SDL_MOUSEBUTTONDOWN\n");
+        break;
+      case SDL_MOUSEBUTTONUP:
+        /*TODO*/
+        printf("WARNING: Unhandled SDL_MOUSEBUTTONUP\n");
+        break;
+      case SDL_MOUSEWHEEL:
+        zoom -= (float)e.wheel.y;
+        break;
+      case SDL_SYSWMEVENT:
+        printf("WARNING: Unhandled SDL_SYSWMEVENT \n");
+        break;
+      case SDL_TEXTEDITING:
+        printf("WARNING: Unhandled SDL_TEXTEDITING\n");
+        break;
+      case SDL_TEXTINPUT:
+        printf("WARNING: Unhandled SDL_TEXTINPUT\n");
+        break;
+      case SDL_FINGERDOWN:
+        printf("WARNING: Unhandled SDL_FINGERDOWN\n");
+        break;
+      case SDL_FINGERUP:
+        printf("WARNING: Unhandled SDL_FINGERUP\n");
+        break;
+      case SDL_FINGERMOTION:
+        printf("WARNING: Unhandled SDL_FINGERMOTION\n");
+        break;
+      case SDL_TOUCHBUTTONDOWN:
+        printf("WARNING: Unhandled SDL_TOUCHBUTTONDOWN\n");
+        break;
+      case SDL_TOUCHBUTTONUP:
+        printf("WARNING: Unhandled SDL_TOUCHBUTTONUP\n");
+        break;
+      case SDL_DOLLARGESTURE:
+        printf("WARNING: Unhandled SDL_DOLLARGESTURE\n");
+        break;
+      case SDL_DOLLARRECORD:
+        printf("WARNING: Unhandled SDL_DOLLARRECORD\n");
+        break;
+      case SDL_MULTIGESTURE:
+        printf("WARNING: Unhandled SDL_MULTIGESTURE\n");
+        break;
+      case SDL_CLIPBOARDUPDATE:
+        printf("WARNING: Unhandled SDL_CLIPBOARDUPDATE\n");
+        break;
+      case SDL_DROPFILE:
+        printf("WARNING: Unhandled SDL_DROPFILE\n");
         break;
       default:
         printf("WARNING: events(): "
