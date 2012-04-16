@@ -231,16 +231,16 @@ void md5_read_joints(FILE *f, Md5_joint *joints){
           &(q.x), &(q.y), &(q.z));
       quat_renormalize(&q);
       j = joints + no;
-      j->name        = my_strdup(name);
+      j->name = my_strdup(name);
       j->parent_index = index;
-      j->parent      = (index >= 0) ? (joints+index) : NULL;
-      j->pos.x       = pos.x;
-      j->pos.y       = pos.y;
-      j->pos.z       = pos.z;
-      j->orient.x    = q.x;
-      j->orient.y    = q.y;
-      j->orient.z    = q.z;
-      j->orient.w    = q.w;
+      j->parent = (index >= 0) ? (joints + index) : NULL;
+      j->pos.x = pos.x;
+      j->pos.y = pos.y;
+      j->pos.z = pos.z;
+      j->orient.x = q.x;
+      j->orient.y = q.y;
+      j->orient.z = q.z;
+      j->orient.w = q.w;
       no++;
     }
   }
