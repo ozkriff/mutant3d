@@ -403,12 +403,6 @@ void map_from_file(const char *filename){
     fgets(s, 200, f);
     if(s[0] == '.'){
       map[p.z][p.y][p.x] = NULL;
-#if 0
-      if(p.z == 0){
-        map[p.z][p.y][p.x] = ALLOCATE(1, Block3);
-        map[p.z][p.y][p.x]->t = B_FLOOR;
-      }
-#endif
     }else{
       Block3 *b = map[p.z][p.y][p.x];
       int height, h[4], w[4], t, n;
