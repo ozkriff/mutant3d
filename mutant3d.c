@@ -647,9 +647,14 @@ void events(void){
         mousemove(e.motion);
         break;
       case SDL_MOUSEBUTTONDOWN:
+      {
         /*TODO*/
-        printf("WARNING: Unhandled SDL_MOUSEBUTTONDOWN\n");
+        V2i pos = mk_v2i((int)e.button.x, (int)e.button.y);
+        Button *b = v2i_to_button(pos);
+        if(b)
+          printf("BUTTON ID:%d\n", b->id);
         break;
+      }
       case SDL_MOUSEBUTTONUP:
         /*TODO*/
         printf("WARNING: Unhandled SDL_MOUSEBUTTONUP\n");
@@ -733,6 +738,7 @@ void main_loop(void){
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw();
+    draw_buttons();
     SDL_GL_SwapWindow(win);
     /* print_world(); */
     SDL_Delay(10);
@@ -1045,6 +1051,8 @@ int main(void){
 #endif
   build_picking_blocks_array();
   font = open_font("data/fonts/DejaVuSansMono.ttf", 12);
+  add_button(font, 0, mk_v2i(0, 0), "TEST_BUTTON_1");
+  add_button(font, 1, mk_v2i(0, 30), "test_button_2");
   main_loop();
   shut_down(0);
   return 0;
