@@ -473,7 +473,8 @@ void keys_callback(SDL_KeyboardEvent e) {
     build_map_array();
   }
   {
-    Block3 *b = block(active_block_pos);
+    V3i p = active_block_pos; /*shortcut*/
+    Block3 *b = block(p);
     if(key == SDLK_EQUALS && b){
       b->h++;
       build_map_array();
@@ -483,13 +484,13 @@ void keys_callback(SDL_KeyboardEvent e) {
     }else if(key == SDLK_t){
       if(b){
         free(b);
-        map[active_block_pos.z][active_block_pos.y][active_block_pos.x] = NULL;
+        map[p.z][p.y][p.x] = NULL;
       }else{
         b = ALLOCATE(1, Block3);
         b->t = B_FLOOR;
         b->h = 0;
         b->parent = D_NONE;
-        map[active_block_pos.z][active_block_pos.y][active_block_pos.x] = b;
+        map[p.z][p.y][p.x] = b;
         calc_map_clearence(3);
       }
       build_map_array();
