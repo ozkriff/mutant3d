@@ -11,6 +11,7 @@
 #include <SDL_opengl.h>
 #include <SDL_scancode.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include "bool.h"
 #include "list.h"
 #include "math.h"
@@ -20,6 +21,7 @@
 #include "obj.h"
 #include "gl.h"
 #include "path.h"
+#include "widgets.h"
 
 float rotate_x = 45.0f;
 float rotate_z = 180.0f;
@@ -37,6 +39,8 @@ typedef enum {
 } Mode;
 
 Mode mode = M_NORMAL;
+
+TTF_Font *font = NULL;
 
 #define BLOCK_SIZE 1.0f
 #define BLOCK_SIZE_2 (BLOCK_SIZE * 2.0f)
@@ -652,6 +656,7 @@ void init(void) {
       window_size.x, window_size.y, SDL_WINDOW_OPENGL);
   context = SDL_GL_CreateContext(win);
   IMG_Init(0);
+  TTF_Init();
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glFrustum(0.5, -0.5, -0.5 * aspect_ratio, 0.5 * aspect_ratio, 1, 500);
@@ -948,6 +953,7 @@ int main(void){
   md5_init();
 #endif
   build_picking_blocks_array();
+  font = open_font("data/fonts/DejaVuSansMono.ttf", 12);
   main_loop();
   shut_down(0);
   return 0;
