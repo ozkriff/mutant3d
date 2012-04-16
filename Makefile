@@ -20,6 +20,6 @@ misc.o: misc.h bool.h mutant3d.h
 list.o: list.h bool.h
 path.o: path.h bool.h list.h math.h mutant3d.h misc.h
 obj.o: obj.h bool.h math.h mutant3d.h misc.h
-widgets.o: widgets.h
+widgets.o: widgets.h bool.h list.h math.h mutant3d.h gl.h
 clean:
 	rm mutant3d $(OBJS) -f
