@@ -936,19 +936,7 @@ bool pick_block(V3i *p){
 int main(void){
   init();
   map_init();
-#if 1
   map_from_file("out.map");
-#else
-  {
-    int x, y;
-    for(y = 0; y < MAP_Y; y++){
-      for(x = 0; x < MAP_X; x++){
-        map[0][y][x] = ALLOCATE(1, Block3);
-        map[0][y][x]->t = B_FLOOR;
-      }
-    }
-  }
-#endif
   calc_map_clearence(3);
   obj_init();
   load_texture("data/floor.tga", &floor_texture);
