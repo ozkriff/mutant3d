@@ -593,9 +593,8 @@ void events(void){
               SDL_DestroyWindow(win);
             break;
           default:
-            /* TODO */
-            /*die("events(): default case for"
-                " window.event %d\n", e.window.type);*/
+            printf("WARNING: events(): default case for "
+                "window.event %d\n", e.window.type);
             break;
         }
         break;
@@ -606,8 +605,8 @@ void events(void){
         mousemove(e.motion);
         break;
       default:
-	/* TODO */
-        /*die("events(): default case for type %d\n", e.type);*/
+        printf("WARNING: events(): "
+            "default case for type %d\n", e.type);
         break;
     }
   }
