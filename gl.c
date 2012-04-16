@@ -66,7 +66,10 @@ void win2world(int x, int y, V3f *p){
   GLfloat vx, vy, vz;
   GLdouble wx, wy, wz;
   assert(p);
-  assert(x >= 0 && y >= 0); /*TODO <= SCR_WIDTH*/
+  assert(x >= 0);
+  assert(y >= 0);
+  assert(x < window_size.x);
+  assert(y < window_size.y);
   glGetIntegerv(GL_VIEWPORT, viewport);
   glGetDoublev(GL_PROJECTION_MATRIX, projection);
   glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
