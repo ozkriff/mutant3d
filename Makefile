@@ -13,7 +13,7 @@ all: mutant3d
 mutant3d: $(OBJS)
 	$(CC) -g -o mutant3d $(OBJS) $(LDFLAGS)
 md5.o: md5.h bool.h math.h misc.h mutant3d.h gl.h
-mutant3d.o: mutant3d.h bool.h list.h math.h misc.h md5.h obj.h gl.h path.h
+mutant3d.o: mutant3d.h bool.h list.h math.h misc.h md5.h obj.h gl.h path.h widgets.h
 math.o: math.h bool.h mutant3d.h misc.h
 gl.o: gl.h bool.h math.h mutant3d.h misc.h
 misc.o: misc.h bool.h mutant3d.h
