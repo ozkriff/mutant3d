@@ -51,6 +51,8 @@ GLfloat LightPosition[4] = {
 
 Block3 *map[MAP_Z][MAP_Y][MAP_X];
 
+V2i window_size = {640, 480};
+
 Va va_map;
 Va va_pick;
 Va va_walls;
@@ -643,13 +645,11 @@ void main_loop(void){
 }
 
 void init(void) {
-  const int window_width = 700;
-  const int window_height = 500;
-  float aspect_ratio = (float)window_height / (float)window_width;
+  float aspect_ratio = (float)window_size.y / (float)window_size.x;
   SDL_VideoInit(NULL);
   win = SDL_CreateWindow("SDL TEST",
       SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-      window_width, window_height, SDL_WINDOW_OPENGL);
+      window_size.x, window_size.y, SDL_WINDOW_OPENGL);
   context = SDL_GL_CreateContext(win);
   IMG_Init(0);
   glMatrixMode(GL_PROJECTION);

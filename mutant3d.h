@@ -38,6 +38,8 @@ typedef struct {
 
 extern Block3 *map[MAP_Z][MAP_Y][MAP_X];
 
+extern V2i window_size;
+
 Block3 *block(V3i p);
 Block3 *block_2(int x, int y, int z);
 bool inboard(V3i p);
