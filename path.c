@@ -47,10 +47,6 @@ static int get_tile_cost(V3i t, V3i nb){
   return cost;
 }
 
-/*проверить стенку этого блока.
-  проверить что есть сосед в нужном направлении.
-  если есть сосед, то
-  проверить противоположную стенку соседа*/
 static bool check_wall(V3i pos, int dir){
   V3i pos2;
   int rev_dir;

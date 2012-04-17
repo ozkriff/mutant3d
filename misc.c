@@ -147,7 +147,7 @@ int rnd(int min, int max){
 }
 
 /*TODO rename*/
-/*проверить, что остались блоки*/
+/*Check if this was last block in map.*/
 bool is_able_to_inc_v3i(V3i *pos){
   bool is_x_correct, is_y_correct, is_z_correct;
   assert(pos);

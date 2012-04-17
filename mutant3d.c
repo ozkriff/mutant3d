@@ -134,7 +134,6 @@ bool check_height_diff(V3i p1, V3i p2, int max_diff){
   return abs(h1 - h2) <= max_diff;
 }
 
-/*TODO стена должна отображаться сразу у двух клеток.*/
 static bool check_wall(V3i a_pos, V3i b_pos){
   ushort *a;
   ushort *b;
@@ -166,9 +165,6 @@ bool check_xxx(V3i orig_pos, V3i pos, int height){
       && check_wall(orig_pos, pos);
 }
 
-/*TODO:
-  Проверять разницу в высоте не с начальным блоком,
-  а с прилегающими!*/
 ushort calc_block_clearence(V3i p, ushort max_size){
   ushort i;
   ushort j;
