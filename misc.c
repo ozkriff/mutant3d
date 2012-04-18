@@ -93,44 +93,30 @@ Dir m2dir(V3i a, V3i b){
 
 /*Get tile's neiborhood by it's index.*/
 V3i neib(V3i pos, Dir i){
-  int dx = 0;
-  int dy = 0;
-  int dz = 0;
-  switch(i){
-    case D_F:   dx = +1; dy = +0; dz = +0; break;
-    case D_FR:  dx = +1; dy = +1; dz = +0; break;
-    case D_R:   dx = +0; dy = +1; dz = +0; break;
-    case D_BR:  dx = -1; dy = +1; dz = +0; break;
-    case D_B:   dx = -1; dy = +0; dz = +0; break;
-    case D_BL:  dx = -1; dy = -1; dz = +0; break;
-    case D_L:   dx = +0; dy = -1; dz = +0; break;
-    case D_FL:  dx = +1; dy = -1; dz = +0; break;
-    /*UP*/
-    case D_UF:  dx = +1; dy = +0; dz = +1; break;
-    case D_UFR: dx = +1; dy = +1; dz = +1; break;
-    case D_UR:  dx = +0; dy = +1; dz = +1; break;
-    case D_UBR: dx = -1; dy = +1; dz = +1; break;
-    case D_UB:  dx = -1; dy = +0; dz = +1; break;
-    case D_UBL: dx = -1; dy = -1; dz = +1; break;
-    case D_UL:  dx = +0; dy = -1; dz = +1; break;
-    case D_UFL: dx = +1; dy = -1; dz = +1; break;
-    /*DOWN*/
-    case D_DF:  dx = +1; dy = +0; dz = -1; break;
-    case D_DFR: dx = +1; dy = +1; dz = -1; break;
-    case D_DR:  dx = +0; dy = +1; dz = -1; break;
-    case D_DBR: dx = -1; dy = +1; dz = -1; break;
-    case D_DB:  dx = -1; dy = +0; dz = -1; break;
-    case D_DBL: dx = -1; dy = -1; dz = -1; break;
-    case D_DL:  dx = +0; dy = -1; dz = -1; break;
-    case D_DFL: dx = +1; dy = -1; dz = -1; break;
-    case D_ERROR:
-    case D_NONE:
-    default:
-      die("misc: neib(): "
-          "Wrong direction: pos:[%d %d %d] dir:%d\n",
-          pos.x, pos.y, pos.z, i);
-      break;
-  }
+  int dx, dy, dz;
+  int directions[8][2] = {
+    {1, 0},
+    {1, 1},
+    {0, 1},
+    {-1, 1},
+    {-1, 0},
+    {-1, -1},
+    {0, -1},
+    {1, -1}
+  };
+  assert(i < D_COUNT);
+  if(i == D_NONE || i == D_ERROR)
+    die("misc: neib(): "
+        "Wrong direction: pos:[%d %d %d] dir:%d\n",
+        pos.x, pos.y, pos.z, i);
+  dx = directions[i % 8][0];
+  dy = directions[i % 8][1];
+  if((int)i / 8 == 0)
+    dz = 0;
+  if((int)i / 8 == 1)
+    dz = 1;
+  if((int)i / 8 == 2)
+    dz = -1;
   return mk_v3i(pos.x + dx, pos.y + dy, pos.z + dz);
 }
 
