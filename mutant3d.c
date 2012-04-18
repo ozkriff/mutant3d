@@ -104,7 +104,8 @@ V3f v3i_to_v3f(V3i i){
   f.x = (float)i.x * BLOCK_SIZE;
   f.y = (float)i.y * BLOCK_SIZE;
   f.z = (float)i.z * BLOCK_SIZE_2;
-  f.z += (BLOCK_SIZE_2 / BLOCK_HEIGHT) * (float)b->h;
+  if(b)
+    f.z += (BLOCK_SIZE_2 / BLOCK_HEIGHT) * (float)b->h;
   return f;
 }
 
