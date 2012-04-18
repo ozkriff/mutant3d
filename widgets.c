@@ -36,7 +36,7 @@ void change_button_text(Button* b, char* text){
   b->texture_id = ttf_gl_print(b->f, text, &b->size);
 }
 
-void change_button_text_by_id (int id, char* text){
+void change_button_text_by_id(int id, char* text){
   Node *node;
   FOR_EACH_NODE(buttons, node){
     Button *b = node->data;
