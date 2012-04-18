@@ -139,11 +139,12 @@ List get_path(V3i pos){
   Dir dir;
   assert(inboard(pos));
   while(block(pos)->cost != 0){
-    push_node(&path, COPY_TO_HEAP(&dir, Dir));
+    push_node(&path, COPY_TO_HEAP(&pos, V3i));
+    dir = block(pos)->parent;
     pos = neib(pos, dir);
   }
   /*Add start position.*/
-  push_node(&path, COPY_TO_HEAP(&dir, Dir));
+  push_node(&path, COPY_TO_HEAP(&pos, V3i));
   assert(stack.count == 0);
   return path;
 }
