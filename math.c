@@ -68,6 +68,13 @@ V3f v3f_mul_float(V3f v, float f){
   return v;
 }
 
+V3f v3f_divide_float(V3f v, float f){
+  v.x /= f;
+  v.y /= f;
+  v.z /= f;
+  return v;
+}
+
 V3f v3f_subt(V3f a, V3f b){
   a.x -= b.x;
   a.y -= b.y;

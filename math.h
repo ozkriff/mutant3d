@@ -33,6 +33,7 @@ V3f v3f_plus(V3f a, V3f b);
 V3f v3f_subt(V3f a, V3f b);
 float v3f_dot(V3f a, V3f b);
 V3f v3f_mul_float(V3f v, float f);
+V3f v3f_divide_float(V3f v, float f);
 float v3f_length(V3f v);
 
 V2i mk_v2i(int x, int y);
