@@ -355,20 +355,6 @@ void draw(void){
     draw_active_block(active_block_pos);
     glLineWidth(1.0);
   }
-  {
-    Block3 *b = block(active_block_pos);
-    if(b){
-      V3f p = v3i_to_v3f(active_block_pos);
-      glPushMatrix();
-      glTranslatef(p.x, p.y, p.z);
-      glScalef(0.2f, 0.2f, 0.2f);
-      glRotatef(90, 1, 0, 0);
-      glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
-      glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
-      glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
-      glPopMatrix();
-    }
-  }
   /*draw units*/
   {
     Node *node;
