@@ -126,7 +126,10 @@ V3i neib(V3i pos, Dir i){
     case D_ERROR:
     case D_NONE:
     default:
-      die("bla-bla-bla"); break;
+      die("misc: neib(): "
+          "Wrong direction: pos:[%d %d %d] dir:%d\n",
+          pos.x, pos.y, pos.z, i);
+      break;
   }
   return mk_v3i(pos.x + dx, pos.y + dy, pos.z + dz);
 }
