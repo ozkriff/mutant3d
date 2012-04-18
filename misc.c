@@ -124,6 +124,7 @@ V3i neib(V3i pos, Dir i){
     case D_DL:  dx = +0; dy = -1; dz = -1; break;
     case D_DFL: dx = +1; dy = -1; dz = -1; break;
     case D_ERROR:
+    case D_NONE:
     default:
       die("bla-bla-bla"); break;
   }
