@@ -766,6 +766,9 @@ void events(void){
             unit_mode = UM_MOVING;
             current_move_index = 0;
             last_move_index = (move_path.count - 1) * MOVE_SPEED;
+            free(va_path.v);
+            va_path.v = NULL;
+            va_path.count = 0;
           }else if(u){
             select_unit(u);
           }
