@@ -38,12 +38,32 @@ typedef enum {
   M_COUNT
 } Mode;
 
+typedef enum {
+  UM_NORMAL,
+  UM_MOVING
+} Unit_mode;
+
+Unit_mode unit_mode = UM_NORMAL;
+
+int last_move_index;
+int current_move_index;
+List move_path = {NULL, NULL, 0};
+
+typedef struct {
+  V3i p;
+} Unit;
+
+List units = {NULL, NULL, 0}; /*Unit*/
+Unit *selected_unit = NULL;
+
 Mode mode = M_NORMAL;
 
 TTF_Font *font = NULL;
 
 #define BLOCK_SIZE 1.0f
 #define BLOCK_SIZE_2 (BLOCK_SIZE * 2.0f)
+
+#define MOVE_SPEED 10 /*frames count*/
 
 GLfloat LightAmbient[4] = {0.1f, 0.1f, 0.1f, 0.2f};
 GLfloat LightDiffuse[4] = {0.5, 0.5, 0.5, 0.5};
@@ -85,6 +105,22 @@ void build_walls_array(void);
 void build_path_array(void);
 bool pick_block(V3i *block);
 void build_picking_blocks_array(void);
+
+Unit *unit_at(V3i p){
+  Node *node;
+  FOR_EACH_NODE(units, node){
+    Unit *u = node->data;
+    if(v3i_is_equal(u->p, p))
+      return u;
+  }
+  return NULL;
+}
+
+void add_unit(V3i p){
+  Unit *u = ALLOCATE(1, Unit);
+  u->p = p;
+  push_node(&units, mk_node(u));
+}
 
 bool inboard(V3i p){
   return p.x >= 0 && p.y >= 0 && p.z >= 0
@@ -333,6 +369,68 @@ void draw(void){
       glPopMatrix();
     }
   }
+  /*draw units*/
+  {
+    Node *node;
+    FOR_EACH_NODE(units, node){
+      Unit *u = node->data;
+      Block3 *b = block(u->p);
+      if(unit_mode == UM_MOVING && u == selected_unit)
+        continue;
+      if(b){
+        V3f p = v3i_to_v3f(u->p);
+        glPushMatrix();
+        glTranslatef(p.x, p.y, p.z);
+        glScalef(0.2f, 0.2f, 0.2f);
+        glRotatef(90, 1, 0, 0);
+        glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
+        glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
+        glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
+        glPopMatrix();
+      }
+    }
+  }
+  /*draw_moving_unit*/
+  if(unit_mode == UM_MOVING){
+    V3i from_i, to_i;
+    V3f from_f, to_f;
+    int node_index;
+    V3f diff;
+    V3f p;
+    Node *node;
+    int i = current_move_index;
+    FOR_EACH_NODE(move_path, node){
+      i -= MOVE_SPEED;
+      if(i < 0)
+        break;
+    }
+    from_i = *(V3i*)node->data;
+    to_i = *(V3i*)node->next->data;
+    from_f = v3i_to_v3f(from_i);
+    to_f = v3i_to_v3f(to_i);
+    diff = v3f_divide_float(v3f_subt(to_f, from_f),
+      MOVE_SPEED);
+    node_index = current_move_index % MOVE_SPEED;
+    p = v3f_plus(from_f,
+        v3f_mul_float(diff, (float)node_index));
+    glPushMatrix();
+    glTranslatef(p.x, p.y, p.z);
+    glScalef(0.2f, 0.2f, 0.2f);
+    glRotatef(90, 1, 0, 0);
+    glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
+    glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
+    glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
+    glPopMatrix();
+    current_move_index++;
+    if(current_move_index == last_move_index){
+      while(move_path.count > 0)
+        delete_node(&move_path, move_path.head);
+      unit_mode = UM_NORMAL;
+      selected_unit->p = to_i;
+      fill_map(selected_unit->p);
+      build_path_array();
+    }
+  }
   glDisableClientState(GL_VERTEX_ARRAY);
   if(0){
     glEnable(GL_TEXTURE_2D);
@@ -428,6 +526,12 @@ void map_from_file(const char *filename){
   fclose(f);
 }
 
+void select_unit(Unit *u){
+  selected_unit = u;
+  fill_map(u->p);
+  build_path_array();
+}
+
 void keys_callback(SDL_KeyboardEvent e) {
   SDL_Keycode key = e.keysym.sym;
   Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -441,6 +545,12 @@ void keys_callback(SDL_KeyboardEvent e) {
       build_map_array();
       build_path_array();
     }
+  }
+  /*Create unit*/
+  if(key == SDLK_z){
+    Unit *u = unit_at(active_block_pos);
+    if(!u)
+      add_unit(active_block_pos);
   }
   if(state[SDL_SCANCODE_H] && active_block_pos.x > 0)
     active_block_pos.x--;
@@ -642,11 +752,23 @@ void events(void){
       {
         /*TODO*/
         V2i pos = mk_v2i((int)e.button.x, (int)e.button.y);
-        Button *b = v2i_to_button(pos);
-        if(b){
-          printf("BUTTON ID:%d\n", b->id);
-          if(b->callback)
-            b->callback();
+        Button *button = v2i_to_button(pos);
+        if(button){
+          printf("BUTTON ID:%d\n", button->id);
+          if(button->callback)
+            button->callback();
+        }else{
+          Unit *u = unit_at(active_block_pos);
+          Block3 *b = block(active_block_pos);
+          if(!u && selected_unit && b && b->parent != D_NONE){
+            fill_map(selected_unit->p);
+            move_path = get_path(active_block_pos);
+            unit_mode = UM_MOVING;
+            current_move_index = 0;
+            last_move_index = (move_path.count - 1) * MOVE_SPEED;
+          }else if(u){
+            select_unit(u);
+          }
         }
         break;
       }
