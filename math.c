@@ -157,3 +157,13 @@ V3i mk_v3i(int x, int y, int z){
 bool v3i_is_equal(V3i a, V3i b){
   return a.x == b.x && a.y == b.y && a.z == b.z;
 }
+
+float get_rot_angle(V3f a, V3f b){
+  float x_diff_2 = (float)pow(b.x - a.x, 2);
+  float y_diff_2 = (float)pow(b.y - a.y, 2);
+  float distance = (float)sqrt( x_diff_2 + y_diff_2);
+  float angle = rad2deg((float)asin((b.x - a.x) / distance));
+  if(b.y - a.y > 0)
+    angle = -(180 + angle);
+  return angle;
+}

@@ -403,6 +403,7 @@ void draw(void){
     glTranslatef(p.x, p.y, p.z);
     glScalef(0.2f, 0.2f, 0.2f);
     glRotatef(90, 1, 0, 0);
+    glRotatef(get_rot_angle(from_f, to_f), 0, 1, 0);
     glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
     glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
     glDrawArrays(GL_TRIANGLES, 0, va_obj.count);

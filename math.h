@@ -40,3 +40,5 @@ V2i mk_v2i(int x, int y);
 
 V3i mk_v3i(int x, int y, int z);
 bool v3i_is_equal(V3i a, V3i b);
+
+float get_rot_angle(V3f a, V3f b);
