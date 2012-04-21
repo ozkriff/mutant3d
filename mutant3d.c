@@ -152,6 +152,77 @@ void draw_active_block(V3i p){
   glDrawArrays(GL_LINES, 0, 28);
 }
 
+void draw_unit(Unit *u){
+  V3f p = v3i_to_v3f(u->p);
+  glPushMatrix();
+  glTranslatef(p.x, p.y, p.z);
+  glScalef(0.2f, 0.2f, 0.2f);
+  glRotatef(90, 1, 0, 0);
+  glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
+  glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
+  glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
+  glPopMatrix();
+}
+
+void draw_units(void){
+  Node *node;
+  FOR_EACH_NODE(units, node){
+    Unit *u = node->data;
+    if(unit_mode == UM_MOVING && u == selected_unit)
+      continue;
+    draw_unit(u);
+  }
+}
+
+void get_current_moving_nodes(V3i *from, V3i *to){
+  Node *node;
+  int i = current_move_index;
+  FOR_EACH_NODE(move_path, node){
+    i -= MOVE_SPEED;
+    if(i < 0)
+      break;
+  }
+  *from = *(V3i*)node->data;
+  *to = *(V3i*)node->next->data;
+}
+
+void end_movement(V3i pos){
+  while(move_path.count > 0)
+    delete_node(&move_path, move_path.head);
+  unit_mode = UM_NORMAL;
+  selected_unit->p = pos;
+  fill_map(selected_unit->p);
+  build_path_array();
+}
+
+void draw_moving_unit(void){
+  V3i from_i, to_i;
+  V3f from_f, to_f;
+  int node_index;
+  V3f diff;
+  V3f p;
+  get_current_moving_nodes(&from_i, &to_i);
+  from_f = v3i_to_v3f(from_i);
+  to_f = v3i_to_v3f(to_i);
+  diff = v3f_divide_float(v3f_subt(to_f, from_f),
+    MOVE_SPEED);
+  node_index = current_move_index % MOVE_SPEED;
+  p = v3f_plus(from_f,
+      v3f_mul_float(diff, (float)node_index));
+  glPushMatrix();
+  glTranslatef(p.x, p.y, p.z);
+  glScalef(0.2f, 0.2f, 0.2f);
+  glRotatef(90, 1, 0, 0);
+  glRotatef(get_rot_angle(from_f, to_f), 0, 1, 0);
+  glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
+  glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
+  glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
+  glPopMatrix();
+  current_move_index++;
+  if(current_move_index == last_move_index)
+    end_movement(to_i);
+}
+
 void draw_map(void){
   glBindTexture(GL_TEXTURE_2D, floor_texture);
   glColor3f(1.0f, 1.0f, 1.0f);
@@ -186,95 +257,13 @@ void draw(void){
   glEnable(GL_TEXTURE_2D);
   draw_map();
   draw_walls();
-  if(0){
-    int i;
-    glBindTexture(GL_TEXTURE_2D, obj_tex);
-    glPushMatrix();
-    glRotatef(90, 1, 0, 0);
-    glColor3f(0, 0, 1);
-    glScalef(0.2f, 0.2f, 0.2f);
-    for(i = 0; i < 25; i++){
-      if(i != 0 && i % 5 == 0)
-        glTranslatef(4 * 5, 0, 8);
-      glTranslatef(-4, 0, 0);
-      glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
-      glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
-      glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
-    }
-    glLineWidth(1.0);
-    glPopMatrix();
-  }
   glDisable(GL_TEXTURE_2D);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   draw_path();
-  {
-    glLineWidth(2.0);
-    draw_active_block(active_block_pos);
-    glLineWidth(1.0);
-  }
-  /*draw units*/
-  {
-    Node *node;
-    FOR_EACH_NODE(units, node){
-      Unit *u = node->data;
-      Block3 *b = block(u->p);
-      if(unit_mode == UM_MOVING && u == selected_unit)
-        continue;
-      if(b){
-        V3f p = v3i_to_v3f(u->p);
-        glPushMatrix();
-        glTranslatef(p.x, p.y, p.z);
-        glScalef(0.2f, 0.2f, 0.2f);
-        glRotatef(90, 1, 0, 0);
-        glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
-        glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
-        glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
-        glPopMatrix();
-      }
-    }
-  }
-  /*draw_moving_unit*/
-  if(unit_mode == UM_MOVING){
-    V3i from_i, to_i;
-    V3f from_f, to_f;
-    int node_index;
-    V3f diff;
-    V3f p;
-    Node *node;
-    int i = current_move_index;
-    FOR_EACH_NODE(move_path, node){
-      i -= MOVE_SPEED;
-      if(i < 0)
-        break;
-    }
-    from_i = *(V3i*)node->data;
-    to_i = *(V3i*)node->next->data;
-    from_f = v3i_to_v3f(from_i);
-    to_f = v3i_to_v3f(to_i);
-    diff = v3f_divide_float(v3f_subt(to_f, from_f),
-      MOVE_SPEED);
-    node_index = current_move_index % MOVE_SPEED;
-    p = v3f_plus(from_f,
-        v3f_mul_float(diff, (float)node_index));
-    glPushMatrix();
-    glTranslatef(p.x, p.y, p.z);
-    glScalef(0.2f, 0.2f, 0.2f);
-    glRotatef(90, 1, 0, 0);
-    glRotatef(get_rot_angle(from_f, to_f), 0, 1, 0);
-    glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
-    glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
-    glDrawArrays(GL_TRIANGLES, 0, va_obj.count);
-    glPopMatrix();
-    current_move_index++;
-    if(current_move_index == last_move_index){
-      while(move_path.count > 0)
-        delete_node(&move_path, move_path.head);
-      unit_mode = UM_NORMAL;
-      selected_unit->p = to_i;
-      fill_map(selected_unit->p);
-      build_path_array();
-    }
-  }
+  draw_active_block(active_block_pos);
+  draw_units();
+  if(unit_mode == UM_MOVING)
+    draw_moving_unit();
   glDisableClientState(GL_VERTEX_ARRAY);
   if(0){
     glEnable(GL_TEXTURE_2D);
