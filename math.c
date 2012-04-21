@@ -6,6 +6,8 @@
 #include <math.h>
 #include "bool.h"
 #include "math.h"
+#include "list.h"
+#include "core.h"
 #include "mutant3d.h"
 #include "misc.h"
 

@@ -5,6 +5,7 @@
 #include "bool.h"
 #include "list.h"
 #include "math.h"
+#include "core.h"
 #include "mutant3d.h"
 #include "misc.h"
 #include "path.h"
