@@ -152,6 +152,14 @@ void draw_active_block(V3i p){
   glDrawArrays(GL_LINES, 0, 28);
 }
 
+void draw_map(void){
+  glBindTexture(GL_TEXTURE_2D, floor_texture);
+  glColor3f(1.0f, 1.0f, 1.0f);
+  glTexCoordPointer(2, GL_FLOAT, 0, va_map.t);
+  glVertexPointer(3, GL_FLOAT, 0, va_map.v);
+  glDrawArrays(GL_QUADS, 0, va_map.count);
+}
+
 void draw(void){
   glLoadIdentity();
   glPushMatrix();
@@ -160,13 +168,7 @@ void draw(void){
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnable(GL_TEXTURE_2D);
-  {
-    glBindTexture(GL_TEXTURE_2D, floor_texture);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glTexCoordPointer(2, GL_FLOAT, 0, va_map.t);
-    glVertexPointer(3, GL_FLOAT, 0, va_map.v);
-    glDrawArrays(GL_QUADS, 0, va_map.count);
-  }
+  draw_map();
   {
     glBindTexture(GL_TEXTURE_2D, wall_texture);
     glColor3f(0.6f, 0.8f, 0.4f);
