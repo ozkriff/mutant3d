@@ -168,6 +168,14 @@ void draw_walls(void){
   glDrawArrays(GL_QUADS, 0, va_walls.count);
 }
 
+void draw_path(void){
+  glLineWidth(2.0);
+  glColor3f(0.6f, 0.2f, 0.2f);
+  glVertexPointer(3, GL_FLOAT, 0, va_path.v);
+  glDrawArrays(GL_LINES, 0, va_path.count);
+  glLineWidth(1.0);
+}
+
 void draw(void){
   glLoadIdentity();
   glPushMatrix();
@@ -198,13 +206,7 @@ void draw(void){
   }
   glDisable(GL_TEXTURE_2D);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  {
-    glLineWidth(2.0);
-    glColor3f(0.6f, 0.2f, 0.2f);
-    glVertexPointer(3, GL_FLOAT, 0, va_path.v);
-    glDrawArrays(GL_LINES, 0, va_path.count);
-    glLineWidth(1.0);
-  }
+  draw_path();
   {
     glLineWidth(2.0);
     draw_active_block(active_block_pos);
