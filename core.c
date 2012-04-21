@@ -13,6 +13,9 @@
 #include "misc.h"
 #include "path.h"
 
+int max_height_diff = 1;
+int min_clearence = 1;
+int action_points = 30;
 Block3 *map[MAP_Z][MAP_Y][MAP_X];
 V3i active_block_pos = {0, 0, 0};
 Unit_mode unit_mode = UM_NORMAL;
@@ -106,7 +109,7 @@ bool check_xxx(V3i orig_pos, V3i pos, int height){
 ushort calc_block_clearence(V3i p, ushort max_size){
   ushort i;
   ushort j;
-  ushort h = MAX_HEIGHT_DIFF;
+  ushort h = (ushort)max_height_diff;
   assert(inboard(p));
   if(block(p) && block(p)->t != B_FLOOR)
     return 0;

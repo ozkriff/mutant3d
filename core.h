@@ -46,11 +46,9 @@ typedef struct {
 #define MAP_Y 100
 #define MAP_Z 6
 
-#define MAX_HEIGHT_DIFF 1
-
-#define MIN_CLEARENCE 1
-#define ACTION_POINTS 30
-
+extern int max_height_diff;
+extern int min_clearence;
+extern int action_points;
 extern Block3 *map[MAP_Z][MAP_Y][MAP_X];
 extern V3i active_block_pos;
 extern Unit_mode unit_mode;

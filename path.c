@@ -92,12 +92,12 @@ static void process_neibor(V3i p1, V3i p2){
     if(d == D_FL && (check_wall(p1, 3) || check_wall(p1, 0)
         || check_wall(p2, 2) || check_wall(p2, 1))) return;
   }
-  if(!check_height_diff(p1, p2, MAX_HEIGHT_DIFF))
+  if(!check_height_diff(p1, p2, max_height_diff))
     return;
-  if(b2->clearence < MIN_CLEARENCE)
+  if(b2->clearence < min_clearence)
     return;
   newcost = b1->cost + get_tile_cost(p1, p2);
-  if(b2->cost > newcost && newcost <= ACTION_POINTS)
+  if(b2->cost > newcost && newcost <= action_points)
     push(p2, m2dir(p2, p1), newcost);
 }
 
