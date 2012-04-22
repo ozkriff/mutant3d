@@ -33,9 +33,10 @@ Unit *unit_at(V3i p){
   return NULL;
 }
 
-void add_unit(V3i p){
+void add_unit(V3i p, int size){
   Unit *u = ALLOCATE(1, Unit);
   u->p = p;
+  u->size = size;
   push_node(&units, mk_node(u));
 }
 
@@ -235,7 +236,7 @@ void map_from_file(const char *filename){
 
 void select_unit(Unit *u){
   selected_unit = u;
-  fill_map(u->p);
+  fill_map(u->p, u->size);
 }
 
 void map_init(void){

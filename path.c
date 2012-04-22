@@ -71,7 +71,7 @@ static bool check_wall(V3i pos, int dir){
 
 /*TODO rename*/
 /*p1 - orig_pos, p2 - neib pos*/
-static void process_neibor(V3i p1, V3i p2){
+static void process_neibor(V3i p1, V3i p2, int clearence){
   int newcost;
   Block3 *b1 = block(p1);
   Block3 *b2 = block(p2);
@@ -94,7 +94,7 @@ static void process_neibor(V3i p1, V3i p2){
   }
   if(!check_height_diff(p1, p2, max_height_diff))
     return;
-  if(b2->clearence < min_clearence)
+  if(b2->clearence < clearence)
     return;
   newcost = b1->cost + get_tile_cost(p1, p2);
   if(b2->cost > newcost && newcost <= action_points)
@@ -113,17 +113,17 @@ static void clean_map(void){
   }
 }
 
-static void try_to_push_neibors(V3i m){
+static void try_to_push_neibors(V3i m, int clearence){
   Dir i;
   assert(inboard(m));
   for(i = 0; i < 8 * 3; i++){
     V3i neib_m = neib(m, i);
     if(inboard(neib_m))
-      process_neibor(m, neib_m);
+      process_neibor(m, neib_m, clearence);
   }
 }
 
-void fill_map(V3i pos){
+void fill_map(V3i pos, int clearence){
   assert(inboard(pos));
   assert(stack.count == 0);
   if(!block(pos))
@@ -131,7 +131,7 @@ void fill_map(V3i pos){
   clean_map();
   push(pos, D_NONE, 0); /*push start position*/
   while(stack.count > 0)
-    try_to_push_neibors(pop());
+    try_to_push_neibors(pop(), clearence);
   clear_list(&stack);
 }
 

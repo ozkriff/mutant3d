@@ -154,9 +154,15 @@ void draw_active_block(V3i p){
 
 void draw_unit(Unit *u){
   V3f p = v3i_to_v3f(u->p);
+  float unit_radious = (float)(u->size - 1) / 2.0f;
   glPushMatrix();
-  glTranslatef(p.x, p.y, p.z);
-  glScalef(0.2f, 0.2f, 0.2f);
+  glTranslatef(p.x + unit_radious, p.y + unit_radious, p.z);
+  if(u->size == 1)
+    glScalef(0.2f, 0.2f, 0.2f);
+  else if(u->size == 2)
+    glScalef(0.3f, 0.3f, 0.3f);
+  else if(u->size == 3)
+    glScalef(0.5f, 0.5f, 0.4f);
   glRotatef(90, 1, 0, 0);
   glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
   glVertexPointer(3, GL_FLOAT, 0, va_obj.v);
@@ -191,11 +197,12 @@ void end_movement(V3i pos){
     delete_node(&move_path, move_path.head);
   unit_mode = UM_NORMAL;
   selected_unit->p = pos;
-  fill_map(selected_unit->p);
+  fill_map(selected_unit->p, selected_unit->size);
   build_path_array();
 }
 
 void draw_moving_unit(void){
+  float unit_radious = (float)(selected_unit->size - 1) / 2.0f;
   V3i from_i, to_i;
   V3f from_f, to_f;
   int node_index;
@@ -210,8 +217,13 @@ void draw_moving_unit(void){
   p = v3f_plus(from_f,
       v3f_mul_float(diff, (float)node_index));
   glPushMatrix();
-  glTranslatef(p.x, p.y, p.z);
-  glScalef(0.2f, 0.2f, 0.2f);
+  glTranslatef(p.x + unit_radious, p.y + unit_radious, p.z);
+  if(selected_unit->size == 1)
+    glScalef(0.2f, 0.2f, 0.2f);
+  else if(selected_unit->size == 2)
+    glScalef(0.3f, 0.3f, 0.3f);
+  else if(selected_unit->size == 3)
+    glScalef(0.5f, 0.5f, 0.4f);
   glRotatef(90, 1, 0, 0);
   glRotatef(get_rot_angle(from_f, to_f), 0, 1, 0);
   glTexCoordPointer(2, GL_FLOAT, 0, va_obj.t);
@@ -291,7 +303,7 @@ void keys_callback(SDL_KeyboardEvent e) {
   if(key == SDLK_z){
     Unit *u = unit_at(active_block_pos);
     if(!u)
-      add_unit(active_block_pos);
+      add_unit(active_block_pos, 3);
   }
   if(state[SDL_SCANCODE_H] && active_block_pos.x > 0)
     active_block_pos.x--;
@@ -312,7 +324,7 @@ void keys_callback(SDL_KeyboardEvent e) {
     if(mode == M_COUNT)
       mode = M_NORMAL;
   }else if(key == SDLK_x){
-    fill_map(active_block_pos);
+    fill_map(active_block_pos, 1);
     build_path_array();
   }else if(key == SDLK_s)
     map_to_file("out.map");
@@ -502,7 +514,7 @@ void events(void){
           Unit *u = unit_at(active_block_pos);
           Block3 *b = block(active_block_pos);
           if(!u && selected_unit && b && b->parent != D_NONE){
-            fill_map(selected_unit->p);
+            fill_map(selected_unit->p, selected_unit->size);
             move_path = get_path(active_block_pos);
             unit_mode = UM_MOVING;
             current_move_index = 0;

@@ -39,6 +39,7 @@ typedef enum {
 
 typedef struct {
   V3i p;
+  int size;
 } Unit;
 
 #define BLOCK_HEIGHT 4
@@ -61,7 +62,7 @@ Block3 *block_2(int x, int y, int z);
 bool inboard(V3i p);
 bool check_height_diff(V3i p1, V3i p2, int max_diff);
 Unit *unit_at(V3i p);
-void add_unit(V3i p);
+void add_unit(V3i p, int size);
 bool inboard(V3i p);
 void map_to_file(const char *filename);
 void calc_map_clearence(ushort max_size);
