@@ -510,7 +510,8 @@ void events(void){
           printf("BUTTON ID:%d\n", button->id);
           if(button->callback)
             button->callback();
-        }else{
+        }else if(unit_mode == UM_NORMAL
+        && SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LMASK){
           Unit *u = unit_at(active_block_pos);
           Block3 *b = block(active_block_pos);
           if(!u && selected_unit && b && b->parent != D_NONE){
