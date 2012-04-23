@@ -6,11 +6,21 @@
 
 typedef unsigned int uint;
 
-typedef struct { float x, y, z, w; } Quat;
-typedef struct { float x, y, z; } V3f;
-typedef struct { int x, y, z; } V3i;
-typedef struct { float x, y; } V2f;
-typedef struct { int x, y; } V2i;
+typedef struct {
+  float x, y, z, w;
+} Quat;
+typedef struct {
+  float x, y, z;
+} V3f;
+typedef struct {
+  int x, y, z;
+} V3i;
+typedef struct {
+  float x, y;
+} V2f;
+typedef struct {
+  int x, y;
+} V2i;
 
 float deg2rad(float deg);
 float rad2deg(float rad);

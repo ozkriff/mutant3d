@@ -14,31 +14,36 @@
 #include "misc.h"
 #include "gl.h"
 
-bool load_texture(char *filename, GLuint *id){
+bool load_texture(char *filename, GLuint *id)
+{
   GLenum texture_format;
   GLint n_of_colors;
   SDL_Surface *surface;
   assert(id);
   surface = IMG_Load(filename);
-  if(surface){
-    if((surface->w & (surface->w - 1)) != 0)
+  if (surface) {
+    if ((surface->w & (surface->w - 1)) != 0) {
       die("image's width is not a power of 2\n");
-    if((surface->h & (surface->h - 1)) != 0)
+    }
+    if ((surface->h & (surface->h - 1)) != 0) {
       die("image's height is not a power of 2\n");
+    }
     n_of_colors = surface->format->BytesPerPixel;
-    if(n_of_colors == 4){
+    if (n_of_colors == 4) {
       /* contains an alpha channel */
-      if(surface->format->Rmask == 0x000000ff)
+      if (surface->format->Rmask == 0x000000ff) {
         texture_format = GL_RGBA;
-      else
+      } else {
         texture_format = GL_BGRA;
-    }else if(n_of_colors == 3){
+      }
+    } else if (n_of_colors == 3) {
       /* no alpha channel */
-      if(surface->format->Rmask == 0x000000ff)
+      if (surface->format->Rmask == 0x000000ff) {
         texture_format = GL_RGB;
-      else
+      } else {
         texture_format = GL_BGR;
-    }else{
+      }
+    } else {
       die("warning: the image is not truecolor..  this will probably break\n");
     }
     glGenTextures(1, id);
@@ -50,18 +55,20 @@ bool load_texture(char *filename, GLuint *id){
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexImage2D(GL_TEXTURE_2D, 0, n_of_colors, surface->w, surface->h, 0,
         texture_format, GL_UNSIGNED_BYTE, surface->pixels );
-  }else{
+  } else {
     die("gl.c: load_texture(): Can't load file '%s'\n",
         filename);
     return false;
   }
-  if(surface)
+  if (surface) {
     SDL_FreeSurface(surface);
+  }
   return true;
 }
 
 /*Translate window coords to 3d world coords.*/
-void win2world(int x, int y, V3f *p){
+void win2world(int x, int y, V3f *p)
+{
   GLint viewport[4];
   GLdouble projection[16];
   GLdouble modelview[16];
@@ -85,17 +92,19 @@ void win2world(int x, int y, V3f *p){
   p->z = (float)wz;
 }
 
-void va_rotate(Va *va, Quat q){
+void va_rotate(Va *va, Quat q)
+{
   int i;
   assert(va);
-  for(i = 0; i < va->count; i++){
-    V3f *original = (V3f*)(va->v + i * 3);
+  for (i = 0; i < va->count; i++) {
+    V3f *original = (V3f *)(va->v + i * 3);
     V3f rotated = quat_rot(q, *original);
     *original = rotated;
   }
 }
 
-void set_xy(float *coords, int n, int i, int vi, float x, float y){
+void set_xy(float *coords, int n, int i, int vi, float x, float y)
+{
   float *coord;
   assert(n == 2 || n == 3 || n == 4);
   assert(vi >= 0 && vi <= n);
@@ -107,7 +116,8 @@ void set_xy(float *coords, int n, int i, int vi, float x, float y){
 
 /*if(quads) n=4; if(tris) n=3*/
 /* i - polygon number, vi - vertex number*/
-void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z){
+void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z)
+{
   float *vertex;
   assert(n == 2 || n == 3 || n == 4);
   assert(vi >= 0 && vi <= n);
@@ -119,7 +129,8 @@ void set_xyz(float *verts, int n, int i, int vi, float x, float y, float z){
 }
 
 /* TODO rename arguments */
-void set_rgb(GLubyte *colors, int n, int i, int vi, GLubyte r, GLubyte g, GLubyte b){
+void set_rgb(GLubyte *colors, int n, int i, int vi, GLubyte r, GLubyte g, GLubyte b)
+{
   GLubyte *color;
   assert(n == 2 || n == 3 || n == 4);
   assert(vi >= 0 && vi <= n);

@@ -1,20 +1,22 @@
 /*See LICENSE file for copyright and license details.*/
 
-typedef struct { int index[3]; } Md5_triangle;
+typedef struct {
+  int index[3];
+} Md5_triangle;
 
-typedef struct{
+typedef struct {
   V2f tex;
   int weight_index;
   int weight_count;
 } Md5_vertex;
 
-typedef struct{
+typedef struct {
   int joint_index;
   float weight;
   V3f pos;
 } Md5_weight;
 
-typedef struct{
+typedef struct {
   char *shader;
   int num_vertices;
   int num_tris;
@@ -28,7 +30,7 @@ typedef struct{
 } Md5_mesh;
 
 typedef struct Md5_joint Md5_joint;
-struct Md5_joint{
+struct Md5_joint {
   char *name;
   int parent_index;
   Md5_joint *parent;
@@ -36,26 +38,26 @@ struct Md5_joint{
   Quat orient;
 };
 
-typedef struct{
+typedef struct {
   int num_joints;
   int num_meshes;
   Md5_joint *joints;
   Md5_mesh  *meshes;
 } Md5_model;
 
-typedef struct{
+typedef struct {
   char *name;
   int parent;
   int flags;
   int start_index;
 } Md5_hierarchy_item;
 
-typedef struct{
+typedef struct {
   V3f pos;
   Quat orient;
 } Md5_base_frame_joint;
 
-typedef struct{
+typedef struct {
   Md5_mesh *mesh;
   Md5_hierarchy_item *hierarchy;
   Md5_base_frame_joint *base_frame;
@@ -66,7 +68,7 @@ typedef struct{
   int num_animated_components;
   int frame;
 } Md5_anim;
- 
+
 void md5_anim_debug_print(Md5_anim *a);
 void md5_mesh_debug_print(Md5_mesh *m);
 V3f md5_joint_transform(Md5_joint *j, V3f v);

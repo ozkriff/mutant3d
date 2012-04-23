@@ -12,7 +12,8 @@
 
 /*Create in heap node that points to 'data' and return
   pointer to rhis node.*/
-Node *mk_node(void *data){
+Node *mk_node(void *data)
+{
   Node *n = ALLOCATE(1, Node);
   n->data = data;
   n->next = NULL;
@@ -22,43 +23,50 @@ Node *mk_node(void *data){
 
 /*If 'after' is NULL, then 'node' will be added at the head
   of the list, else it will be added following 'after'.*/
-void insert_node(List *list, Node *node, Node *after){
+void insert_node(List *list, Node *node, Node *after)
+{
   assert(list && node);
-  if(after){
+  if (after) {
     node->next = after->next;
     node->prev = after;
     after->next = node;
-  }else{
+  } else {
     node->next = list->head;
     node->prev = NULL;
     list->head = node;
   }
-  if(node->next)
+  if (node->next) {
     node->next->prev = node;
-  else
+  } else {
     list->tail = node;
+  }
   list->count++;
 }
 
 /*Extructs node from list, returns pointer to this node.*/
-Node *extruct_node(List *list, Node *node){
+Node *extruct_node(List *list, Node *node)
+{
   assert(list && node);
-  if(!node)
+  if (!node) {
     return NULL;
-  if(node->next)
+  }
+  if (node->next) {
     node->next->prev = node->prev;
-  else
+  } else {
     list->tail = node->prev;
-  if(node->prev)
+  }
+  if (node->prev) {
     node->prev->next = node->next;
-  else
+  } else {
     list->head = node->next;
+  }
   list->count--;
   return node;
 }
 
 /*Delete data and node.*/
-void delete_node(List *list, Node *node){
+void delete_node(List *list, Node *node)
+{
   Node *tmp;
   assert(list && node);
   tmp = extruct_node(list, node);
@@ -68,7 +76,8 @@ void delete_node(List *list, Node *node){
 
 /*Extruct node from list, delete node,
   return pointer to data.*/
-void *extruct_data(List *list, Node *node){
+void *extruct_data(List *list, Node *node)
+{
   Node *tmp;
   void *data;
   assert(list && node);
@@ -78,17 +87,22 @@ void *extruct_data(List *list, Node *node){
   return data;
 }
 
-void clear_list(List *l){
+void clear_list(List *l)
+{
   assert(l);
-  while(l->count)
+  while (l->count) {
     delete_node(l, l->head);
+  }
 }
 
-Node *data2node(List l, void *data){
+Node *data2node(List l, void *data)
+{
   Node *node;
   assert(data);
-  FOR_EACH_NODE(l, node)
-    if(node->data == data)
+  FOR_EACH_NODE(l, node) {
+    if (node->data == data) {
       return node;
+    }
+  }
   return NULL;
 }
