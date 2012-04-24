@@ -137,7 +137,7 @@ void md5_mesh_calc_points(Md5_mesh *m, Md5_joint *joints)
 void md5_model_compute(Md5_model *m, Md5_joint *joints)
 {
   int i;
-  for (i = 0; i < m->num_meshes; i++ ) {
+  for (i = 0; i < m->num_meshes; i++) {
     md5_mesh_calc_points(m->meshes + i, joints);
   }
 }
@@ -367,7 +367,7 @@ void md5_load_frame(FILE *f, Md5_anim *a, int n)
 void md5_reset_joints(Md5_anim *a)
 {
   int i;
-  for (i = 0; i < a->num_joints; i++ ) {
+  for (i = 0; i < a->num_joints; i++) {
     Md5_joint *j = a->joints + i;
     j->name = a->hierarchy[i].name; /* ? */
     j->parent_index = a->hierarchy[i].parent;
@@ -384,7 +384,7 @@ void md5_reset_joints(Md5_anim *a)
 void md5_build_joints(Md5_anim *a)
 {
   int i;
-  for (i = 0; i < a->num_joints; i++ ) {
+  for (i = 0; i < a->num_joints; i++) {
     Md5_joint *j = a->joints + i;
     Md5_joint *p = j->parent;
     if (p != NULL) {

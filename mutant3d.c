@@ -713,7 +713,7 @@ void init(void)
   glEnable(GL_AUTO_NORMAL);
   glEnable(GL_NORMALIZE);
   glShadeModel(GL_SMOOTH);
-  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+  glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   glEnable(GL_COLOR_MATERIAL);
   /*glColorMaterial(GL_FRONT,GL_DIFFUSE);*/
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);

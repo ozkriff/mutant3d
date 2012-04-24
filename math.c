@@ -188,7 +188,7 @@ float get_rot_angle(V3f a, V3f b)
 {
   float x_diff_2 = (float)pow(b.x - a.x, 2);
   float y_diff_2 = (float)pow(b.y - a.y, 2);
-  float distance = (float)sqrt( x_diff_2 + y_diff_2);
+  float distance = (float)sqrt(x_diff_2 + y_diff_2);
   float angle = rad2deg((float)asin((b.x - a.x) / distance));
   if (b.y - a.y > 0) {
     angle = -(180 + angle);

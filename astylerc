@@ -9,3 +9,4 @@ pad-oper
 pad-header
 max-instatement-indent=0
 add-brackets
+unpad-paren

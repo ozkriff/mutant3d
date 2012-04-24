@@ -54,7 +54,7 @@ bool load_texture(char *filename, GLuint *id)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexImage2D(GL_TEXTURE_2D, 0, n_of_colors, surface->w, surface->h, 0,
-        texture_format, GL_UNSIGNED_BYTE, surface->pixels );
+        texture_format, GL_UNSIGNED_BYTE, surface->pixels);
   } else {
     die("gl.c: load_texture(): Can't load file '%s'\n",
         filename);
