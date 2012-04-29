@@ -257,7 +257,7 @@ void draw_map(void)
   glColor3f(1.0f, 1.0f, 1.0f);
   glTexCoordPointer(2, GL_FLOAT, 0, va_map.t);
   glVertexPointer(3, GL_FLOAT, 0, va_map.v);
-  glDrawArrays(GL_QUADS, 0, va_map.count);
+  glDrawArrays(GL_TRIANGLES, 0, va_map.count);
 }
 
 void draw_walls(void)
@@ -769,7 +769,7 @@ void build_map_array(void)
 {
   V3i p = {0, 0, 0};
   int i = 0; /*block index*/
-  va_map.count = get_blocks_count() * 4;
+  va_map.count = get_blocks_count() * 6;
   if (va_map.v) {
     free(va_map.v);
   }
@@ -786,14 +786,19 @@ void build_map_array(void)
       float n2 = BLOCK_SIZE_2 / BLOCK_HEIGHT;
       float z = BLOCK_SIZE_2 * (float)p.z;
       V3f pos = v3i_to_v3f(p);
-      set_xyz(va_map.v, 4, i, 0, pos.x - n, pos.y - n, z + (float)h[0] * n2);
-      set_xyz(va_map.v, 4, i, 1, pos.x + n, pos.y - n, z + (float)h[1] * n2);
-      set_xyz(va_map.v, 4, i, 2, pos.x + n, pos.y + n, z + (float)h[2] * n2);
-      set_xyz(va_map.v, 4, i, 3, pos.x - n, pos.y + n, z + (float)h[3] * n2);
-      set_xy(va_map.t, 4, i, 0, 0.0f, 0.0f);
-      set_xy(va_map.t, 4, i, 1, 1.0f, 0.0f);
-      set_xy(va_map.t, 4, i, 2, 1.0f, 1.0f);
-      set_xy(va_map.t, 4, i, 3, 0.0f, 1.0f);
+      set_xyz(va_map.v, 3, i, 0, pos.x - n, pos.y - n, z + (float)h[0] * n2);
+      set_xyz(va_map.v, 3, i, 1, pos.x + n, pos.y - n, z + (float)h[1] * n2);
+      set_xyz(va_map.v, 3, i, 2, pos.x + n, pos.y + n, z + (float)h[2] * n2);
+      set_xy(va_map.t, 3, i, 0, 0.0f, 0.0f);
+      set_xy(va_map.t, 3, i, 1, 1.0f, 0.0f);
+      set_xy(va_map.t, 3, i, 2, 1.0f, 1.0f);
+      i++;
+      set_xyz(va_map.v, 3, i, 0, pos.x - n, pos.y - n, z + (float)h[0] * n2);
+      set_xyz(va_map.v, 3, i, 1, pos.x + n, pos.y + n, z + (float)h[2] * n2);
+      set_xyz(va_map.v, 3, i, 2, pos.x - n, pos.y + n, z + (float)h[3] * n2);
+      set_xy(va_map.t, 3, i, 0, 0.0f, 0.0f);
+      set_xy(va_map.t, 3, i, 1, 1.0f, 1.0f);
+      set_xy(va_map.t, 3, i, 2, 0.0f, 1.0f);
       i++;
     }
     inc_v3i(&p);
