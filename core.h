@@ -58,7 +58,6 @@ extern Unit *selected_unit;
 extern Mode mode;
 
 Block3 *block(V3i p);
-Block3 *block_2(int x, int y, int z);
 bool inboard(V3i p);
 bool check_height_diff(V3i p1, V3i p2, int max_diff);
 Unit *unit_at(V3i p);
