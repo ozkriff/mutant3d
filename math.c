@@ -246,3 +246,14 @@ bool line_tri_intersec(V3f p1, V3f p2, V3f pa, V3f pb, V3f pc, V3f *p)
   total = rad2deg((float)(acos(a1) + acos(a2) + acos(a3)));
   return fabs(total - 360) <= eps;
 }
+
+bool line_quad_intersec(V3f p1, V3f p2, V3f pa, V3f pb, V3f pc, V3f pd, V3f *p)
+{
+  if (line_tri_intersec(p1, p2, pa, pb, pc, p)) {
+    return true;
+  }
+  if (line_tri_intersec(p1, p2, pa, pc, pd, p)) {
+    return true;
+  }
+  return false;
+}
