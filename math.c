@@ -200,3 +200,49 @@ float get_rot_angle(V3f a, V3f b)
   }
   return angle;
 }
+
+/*http://algolist.manual.ru/maths/geom/intersect/linefacet3d.php
+  Determine whether or not the line segment [p1 p2]
+  intersects the 3 vertex facet bounded by [pa pb pc].
+  Return true/false and the intersection point 'p'.
+  The equation of the line is "p = p1 + mu (p2 - p1)"
+  The equation of the plane is
+    "a x + b y + c z + d = 0
+    n.x x + n.y y + n.z z + d = 0"
+*/
+bool line_tri_intersec(V3f p1, V3f p2, V3f pa, V3f pb, V3f pc, V3f *p)
+{
+  float eps = 0.1f; /*TODO*/
+  float d;
+  float a1, a2, a3;
+  float total, denom, mu;
+  V3f n, pa1, pa2, pa3;
+  assert(p);
+  /*Calculate the parameters for the plane*/
+  n.x = (pb.y - pa.y) * (pc.z - pa.z) - (pb.z - pa.z) * (pc.y - pa.y);
+  n.y = (pb.z - pa.z) * (pc.x - pa.x) - (pb.x - pa.x) * (pc.z - pa.z);
+  n.z = (pb.x - pa.x) * (pc.y - pa.y) - (pb.y - pa.y) * (pc.x - pa.x);
+  n = v3f_norm(n);
+  d = - n.x * pa.x - n.y * pa.y - n.z * pa.z;
+  /*Calculate the position on the line that intersects the plane*/
+  denom = n.x * (p2.x - p1.x) + n.y * (p2.y - p1.y) + n.z * (p2.z - p1.z);
+  /*Line and plane don't intersect.*/
+  if ((float)fabs(denom) < eps) {
+    return false;
+  }
+  mu = - (d + n.x * p1.x + n.y * p1.y + n.z * p1.z) / denom;
+  *p = v3f_plus(p1, v3f_mul_float(v3f_subt(p2, p1), mu));
+  /*Intersection not along line segment.*/
+  if (mu < 0 || mu >= 1.0f) {
+    return false;
+  }
+  /*Determine whether or not the intersection point is bounded by pa,pb,pc.*/
+  pa1 = v3f_norm(v3f_subt(pa, *p));
+  pa2 = v3f_norm(v3f_subt(pb, *p));
+  pa3 = v3f_norm(v3f_subt(pc, *p));
+  a1 = pa1.x * pa2.x + pa1.y * pa2.y + pa1.z * pa2.z;
+  a2 = pa2.x * pa3.x + pa2.y * pa3.y + pa2.z * pa3.z;
+  a3 = pa3.x * pa1.x + pa3.y * pa1.y + pa3.z * pa1.z;
+  total = rad2deg((float)(acos(a1) + acos(a2) + acos(a3)));
+  return fabs(total - 360) <= eps;
+}

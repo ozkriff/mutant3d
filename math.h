@@ -53,3 +53,5 @@ V3i mk_v3i(int x, int y, int z);
 bool v3i_is_equal(V3i a, V3i b);
 
 float get_rot_angle(V3f a, V3f b);
+
+bool line_tri_intersec(V3f p1, V3f p2, V3f pa, V3f pb, V3f pc, V3f *p);
