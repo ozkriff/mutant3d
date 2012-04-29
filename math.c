@@ -100,6 +100,11 @@ float v3f_length(V3f v)
   return (float)sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
+V3f v3f_norm(V3f v)
+{
+  return v3f_mul_float(v, 1.0f / v3f_length(v));
+}
+
 V2f mk_v2f(float x, float y)
 {
   V2f v;
