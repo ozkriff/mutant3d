@@ -7,7 +7,6 @@
 #include <time.h>
 #include <assert.h>
 #include <SDL.h>
-#include "GL/gl.h"
 #include <SDL_opengl.h>
 #include <SDL_scancode.h>
 #include <SDL_image.h>
