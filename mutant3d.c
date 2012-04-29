@@ -326,7 +326,9 @@ void keys_callback(SDL_KeyboardEvent e)
   if (key == SDLK_z) {
     Unit *u = unit_at(active_block_pos);
     if (!u) {
-      add_unit(active_block_pos, 3);
+      add_unit(active_block_pos, 1);
+      select_unit(unit_at(active_block_pos));
+      build_path_array();
     }
   }
   if (state[SDL_SCANCODE_H] && active_block_pos.x > 0) {
