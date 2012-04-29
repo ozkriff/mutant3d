@@ -60,6 +60,8 @@ Va va_path;
 
 bool enabled_levels[20] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
+bool line_map[MAP_Z][MAP_Y][MAP_X];
+
 Md5_model m;
 Md5_anim anim;
 
@@ -94,6 +96,185 @@ V3f v3i_to_v3f(V3i i)
     f.z += (BLOCK_SIZE_2 / BLOCK_HEIGHT) * (float)b->h;
   }
   return f;
+}
+
+bool check_block_floor_intersect(V3f line0, V3f line1, V3i pi, V3f *inters_point)
+{
+  Block3 *b = block(pi);
+  V3f p = v3i_to_v3f(pi);
+  float n = BLOCK_SIZE / 2.0f;
+  ushort *h = b->heights;
+  float n2 = BLOCK_SIZE_2 / BLOCK_HEIGHT;
+  float z = BLOCK_SIZE_2 * (float)pi.z;
+  V3f v[3];
+  v[0] = mk_v3f(p.x - n, p.y - n, z + (float)h[0] * n2);
+  v[1] = mk_v3f(p.x + n, p.y - n, z + (float)h[1] * n2);
+  v[2] = mk_v3f(p.x + n, p.y + n, z + (float)h[2] * n2);
+  if (line_tri_intersec(line0, line1, v[0], v[1], v[2], inters_point)) {
+    return true;
+  }
+  v[0] = mk_v3f(p.x - n, p.y - n, z + (float)h[0] * n2);
+  v[1] = mk_v3f(p.x + n, p.y + n, z + (float)h[2] * n2);
+  v[2] = mk_v3f(p.x - n, p.y + n, z + (float)h[3] * n2);
+  if (line_tri_intersec(line0, line1, v[0], v[1], v[2], inters_point)) {
+    return true;
+  }
+  return false;
+}
+
+bool check_block_walls_intersect(V3f line0, V3f line1, V3i pi, V3f *inters_point)
+{
+  Block3 *b = block(pi);
+  V3f p = v3i_to_v3f(pi);
+  float n = BLOCK_SIZE / 2.0f;
+  V3f v[4];
+  if (b->walls[0]) {
+    v[0] = mk_v3f(p.x + n, p.y - n, p.z);
+    v[1] = mk_v3f(p.x + n, p.y + n, p.z);
+    v[2] = mk_v3f(p.x + n, p.y + n, p.z + 4 * n);
+    v[3] = mk_v3f(p.x + n, p.y - n, p.z + 4 * n);
+    if (line_quad_intersec(line0, line1, v[0], v[1], v[2], v[3], inters_point)) {
+      return true;
+    }
+  }
+  if (b->walls[1]) {
+    v[0] = mk_v3f(p.x - n, p.y + n, p.z);
+    v[1] = mk_v3f(p.x + n, p.y + n, p.z);
+    v[2] = mk_v3f(p.x + n, p.y + n, p.z + 4 * n);
+    v[3] = mk_v3f(p.x - n, p.y + n, p.z + 4 * n);
+    if (line_quad_intersec(line0, line1, v[0], v[1], v[2], v[3], inters_point)) {
+      return true;
+    }
+  }
+  if (b->walls[2]) {
+    v[0] = mk_v3f(p.x - n, p.y - n, p.z);
+    v[1] = mk_v3f(p.x - n, p.y + n, p.z);
+    v[2] = mk_v3f(p.x - n, p.y + n, p.z + 4 * n);
+    v[3] = mk_v3f(p.x - n, p.y - n, p.z + 4 * n);
+    if (line_quad_intersec(line0, line1, v[0], v[1], v[2], v[3], inters_point)) {
+      return true;
+    }
+  }
+  if (b->walls[3]) {
+    v[0] = mk_v3f(p.x - n, p.y - n, p.z);
+    v[1] = mk_v3f(p.x + n, p.y - n, p.z);
+    v[2] = mk_v3f(p.x + n, p.y - n, p.z + 4 * n);
+    v[3] = mk_v3f(p.x - n, p.y - n, p.z + 4 * n);
+    if (line_quad_intersec(line0, line1, v[0], v[1], v[2], v[3], inters_point)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool block_interect(V3f line0, V3f line1, V3i pi, V3f *inters_point)
+{
+  if (check_block_floor_intersect(line0, line1, pi, inters_point)) {
+    return true;
+  }
+  if (check_block_walls_intersect(line0, line1, pi, inters_point)) {
+    return true;
+  }
+  return false;
+}
+
+void clean_map_line(void)
+{
+  V3i p = {0, 0, 0};
+  while (is_able_to_inc_v3i(&p)) {
+    line_map[p.z][p.y][p.x] = false;
+    inc_v3i(&p);
+  }
+}
+
+/*TODO move to math module?*/
+void raytrace(V3f a, V3f b)
+{
+  V3f a_tmp = mk_v3f(a.x, a.y, a.z * 2);
+  V3f b_tmp = mk_v3f(b.x, b.y, b.z * 2);
+  V3f d;
+  V3f dt;
+  int x, y, z;
+  int n = 1;
+  V3i inc;
+  V3f next;
+  a.x += 0.5f;
+  a.y += 0.5f;
+  b.x += 0.5f;
+  b.y += 0.5f;
+  d = mk_v3f( (float)fabs(b.x - a.x),
+      (float)fabs(b.y - a.y), (float)fabs(b.z - a.z));
+  dt = mk_v3f(1.0f / d.x, 1.0f / d.y, 1.0f / d.z);
+  x = (int)floor(a.x);
+  y = (int)floor(a.y);
+  z = (int)floor(a.z);
+  clean_map_line();
+  if (d.x == 0) {
+    inc.x = 0;
+    next.x = dt.x; /*infinity*/
+  } else if (b.x > a.x) {
+    inc.x = 1;
+    n += (int)floor(b.x) - x;
+    next.x = ((float)floor(a.x) + 1 - a.x) * dt.x;
+  } else {
+    inc.x = -1;
+    n += x - (int)floor(b.x);
+    next.x = (a.x - (float)floor(a.x)) * dt.x;
+  }
+  if (d.y == 0) {
+    inc.y = 0;
+    next.y = dt.y; /*infinity*/
+  } else if (b.y > a.y) {
+    inc.y = 1;
+    n += (int)floor(b.y) - y;
+    next.y = ((float)floor(a.y) + 1 - a.y) * dt.y;
+  } else {
+    inc.y = -1;
+    n += y - (int)floor(b.y);
+    next.y = (a.y - (float)floor(a.y)) * dt.y;
+  }
+  if (d.z == 0) {
+    inc.z = 0;
+    next.z = dt.z; /*infinity*/
+  } else if (b.z > a.z) {
+    inc.z = 1;
+    n += (int)floor(b.z) - z;
+    next.z = ((float)floor(a.z) + 1 - a.z) * dt.z;
+  } else {
+    inc.z = -1;
+    n += z - (int)floor(b.z);
+    next.z = (a.z - (float)floor(a.z)) * dt.z;
+  }
+  for (; n > 0; --n) {
+    Block3 *blk = block(mk_v3i(x, y, z));
+    line_map[z][y][x] = true;
+    if (blk) {
+      V3f intersect_point;
+      if (block_interect(b_tmp, a_tmp, mk_v3i(x, y, z), &intersect_point)) {
+        break;
+      }
+    }
+    if (next.y <= next.x && next.y <= next.z) {
+      y += inc.y;
+      next.y += dt.y;
+    } else if (next.x <= next.y && next.x <= next.z) {
+      x += inc.x;
+      next.x += dt.x;
+    } else if (next.z <= next.x && next.z <= next.y) {
+      z += inc.z;
+      next.z += dt.z;
+    }
+  }
+}
+
+/*Trace line from centers of blocks.*/
+void raytrace_3i(V3i a_i, V3i b_i)
+{
+  V3f a = v3i_to_v3f(a_i);
+  V3f b = v3i_to_v3f(b_i);
+  a.z = (a.z + 1) / 2.0f;
+  b.z = (b.z + 1) / 2.0f;
+  raytrace(a, b);
 }
 
 void shut_down(int return_code)
@@ -278,6 +459,32 @@ void draw_path(void)
   glLineWidth(1.0);
 }
 
+void draw_line(void)
+{
+  GLfloat va[2 * 3];
+  V3i p = {0, 0, 0};
+  V3f a, b;
+  if (!selected_unit) {
+    return;
+  }
+  glColor3f(1, 0, 0);
+  while (is_able_to_inc_v3i(&p)) {
+    if (line_map[p.z][p.y][p.x]) {
+      draw_active_block(p);
+    }
+    inc_v3i(&p);
+  }
+  a = v3i_to_v3f(selected_unit->p);
+  b = v3i_to_v3f(active_block_pos);
+  a.z = (a.z + 1);
+  b.z = (b.z + 1);
+  set_xyz(va, 2, 0, 0, a.x, a.y, a.z);
+  set_xyz(va, 2, 0, 1, b.x, b.y, b.z);
+  glColor3f(1, 0, 0);
+  glVertexPointer(3, GL_FLOAT, 0, va);
+  glDrawArrays(GL_LINES, 0, 2);
+}
+
 void draw(void)
 {
   glLoadIdentity();
@@ -294,6 +501,7 @@ void draw(void)
   draw_path();
   draw_active_block(active_block_pos);
   draw_units();
+  draw_line();
   if (unit_mode == UM_MOVING) {
     draw_moving_unit();
   }
@@ -321,6 +529,9 @@ void keys_callback(SDL_KeyboardEvent e)
       build_map_array();
       build_path_array();
     }
+  }
+  if (key == SDLK_f && selected_unit) {
+    raytrace_3i(selected_unit->p, active_block_pos);
   }
   /*Create unit*/
   if (key == SDLK_z) {
