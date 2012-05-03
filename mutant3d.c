@@ -202,7 +202,7 @@ void raytrace(V3f a, V3f b)
   a.y += 0.5f;
   b.x += 0.5f;
   b.y += 0.5f;
-  d = mk_v3f( (float)fabs(b.x - a.x),
+  d = mk_v3f((float)fabs(b.x - a.x),
       (float)fabs(b.y - a.y), (float)fabs(b.z - a.z));
   dt = mk_v3f(1.0f / d.x, 1.0f / d.y, 1.0f / d.z);
   x = (int)floor(a.x);
